@@ -20,6 +20,8 @@ CLAUDE.local.md
 showcase/node_modules/
 showcase/.next/
 showcase/out/
+showcase/next-env.d.ts
+showcase/*.tsbuildinfo
 
 # Local working notes (issues live on GitHub)
 .scratch/
