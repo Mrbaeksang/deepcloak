@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "deepcloak": {
+      "command": "deepcloak",
+      "args": ["mcp"],
+      "env": {}
+    }
+  }
+}

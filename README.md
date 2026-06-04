@@ -73,13 +73,25 @@ research loop (local-deep-research) ─▶ cited report + Evidence Records
 
 Stealth is heavy, so DeepCloak tries a cheap plain fetch first and only launches the stealth browser when it actually detects a Bot Wall (`--stealth auto`, the default). Use `--depth detailed`/`report` to fetch full pages where Bypasses happen.
 
-## 🤖 Use it from an AI agent
+## 🤖 Connect it to your agent (MCP)
 
-```bash
-deepcloak mcp        # stdio MCP server
+DeepCloak runs as a stdio **MCP server** exposing `deep_research(query, depth)`, `quick_summary(query)`, and `get_evidence(run_id)`.
+
+**Claude Code** — add to your project's `.mcp.json` (an example ships in this repo):
+
+```json
+{ "mcpServers": { "deepcloak": { "command": "deepcloak", "args": ["mcp"] } } }
 ```
 
-Tools: `deep_research(query, depth)`, `quick_summary(query)`, `get_evidence(run_id)`. Or drop [`skill/SKILL.md`](skill/SKILL.md) into `~/.claude/skills/deepcloak/` to use it as a Claude skill.
+**Codex** — add to `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.deepcloak]
+command = "deepcloak"
+args = ["mcp"]
+```
+
+Then your agent can call `deep_research` and read bot-walled sources directly. Prefer a slash-style skill? Drop [`skill/SKILL.md`](skill/SKILL.md) into `~/.claude/skills/deepcloak/`.
 
 ## ⚙️ Configuration
 
