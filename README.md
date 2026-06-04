@@ -33,6 +33,12 @@ When a plain fetch hits a Bot Wall, DeepCloak **Escalates** that one URL to a **
 
 It's a thin, local-first orchestrator over two great projects: [`local-deep-research`](https://github.com/LearningCircuit/local-deep-research) (the research loop) and [`CloakBrowser`](https://github.com/CloakHQ/CloakBrowser) (the stealth browser). Use it as a **CLI**, an **MCP server**, or a **Claude skill**. MIT.
 
+## 🌑 Why we built this
+
+The open web is quietly closing. More of the best writing now sits behind a bot check, and AI research agents — the tools we increasingly trust to read the web *for us* — go blind at exactly those doors, without ever saying so. A report that silently skips every walled source isn't neutral; it's wrong in a way you can't see.
+
+DeepCloak's stance is simple: **your agent should be able to read what a person with a browser can read** — and it should be honest about how it got there. So it Bypasses the wall when it has to, keeps everything local (no query or page leaves your machine), and prints an Evidence Record of every wall it crossed. Capability *and* transparency, MIT-licensed, no lock-in.
+
 ## ✨ Why it's different
 
 |  | Plain deep research | **DeepCloak** |
