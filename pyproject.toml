@@ -1,0 +1,46 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "deepcloak"
+version = "0.1.0"
+description = "Local-first deep research agent that reads the whole web — even pages behind Cloudflare, Datadome, Turnstile & reCAPTCHA."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "Mrbaeksang" }]
+keywords = ["deep-research", "web-scraping", "stealth", "anti-bot", "cloudflare", "mcp", "llm", "ai-agent", "rag", "local-first"]
+
+# ADR-0001: local-deep-research is pinned with == because the stealth shim
+# depends on its internal symbols.
+dependencies = [
+    "local-deep-research==1.6.11",
+    "cloakbrowser>=0.3.27",
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+mcp = ["mcp>=1.0"]
+dev = ["pytest>=8.0", "ruff>=0.6"]
+
+[project.scripts]
+deepcloak = "deepcloak.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Mrbaeksang/deepcloak"
+Repository = "https://github.com/Mrbaeksang/deepcloak"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/deepcloak"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
