@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Env / secrets
+.env
+.env.*
+CLAUDE.local.md
+
+# Showcase (Next.js)
+showcase/node_modules/
+showcase/.next/
+showcase/out/
+
+# Local working notes (issues live on GitHub)
+.scratch/
+
+# OS
+.DS_Store
