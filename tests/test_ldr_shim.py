@@ -34,6 +34,31 @@ def test_install_routes_html_through_fetch_router_and_records_evidence():
     assert not hasattr(cls, "_fetch_html")
 
 
+def test_repeated_fetch_same_url_records_once_and_caches():
+    log = EvidenceLog()
+    calls = {"plain": 0, "stealth": 0}
+
+    def plain(u):
+        calls["plain"] += 1
+        return FakeResp(status_code=403)
+
+    def stealth(u):
+        calls["stealth"] += 1
+        return "BYPASSED"
+
+    cls = install(
+        evidence_log=log, mode="auto", target_cls=FakeDownloader,
+        plain_fetch=plain, stealth_fetch=stealth,
+    )
+    inst = FakeDownloader()
+    a = cls._fetch_html(inst, "http://walled")
+    b = cls._fetch_html(inst, "http://walled")  # LDR's second call
+    assert a == b == "BYPASSED"
+    assert calls["stealth"] == 1  # stealth fetched once, not twice
+    assert len(log.records) == 1  # recorded once
+    uninstall(cls)
+
+
 def test_install_off_mode_records_without_stealth():
     log = EvidenceLog()
     called = {"stealth": False}
@@ -56,9 +81,12 @@ def test_install_off_mode_records_without_stealth():
     uninstall(cls)
 
 
-def test_stealth_get_raises_helpful_error_when_cloakbrowser_missing():
-    # cloakbrowser is not installed in the test venv.
+def test_stealth_get_raises_helpful_error_when_cloakbrowser_missing(monkeypatch):
+    import sys
+
     import pytest
 
+    # Force `import cloakbrowser` to fail regardless of whether it's installed.
+    monkeypatch.setitem(sys.modules, "cloakbrowser", None)
     with pytest.raises(RuntimeError, match="deepcloak setup"):
         stealth_get("http://example.com")

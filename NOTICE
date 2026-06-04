@@ -1,0 +1,21 @@
+DeepCloak
+Copyright (c) 2026 Mrbaeksang
+
+This product depends on, and is built around, the following open-source projects.
+DeepCloak does not vendor their code; it depends on them via pip.
+
+-------------------------------------------------------------------------------
+local-deep-research
+  Homepage: https://github.com/LearningCircuit/local-deep-research
+  License:  MIT
+  Role:     the iterative multi-source Deep Research loop.
+
+-------------------------------------------------------------------------------
+CloakBrowser
+  Homepage: https://github.com/CloakHQ/CloakBrowser
+  License:  MIT
+  Role:     the stealth Chromium that performs the Stealth Fetch / Bypass.
+
+-------------------------------------------------------------------------------
+Both are MIT-licensed; their copyright and permission notices apply to their
+respective code. See each project's repository for full license text.
