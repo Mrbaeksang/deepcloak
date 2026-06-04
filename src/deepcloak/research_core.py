@@ -12,7 +12,9 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
+from . import ldr_shim
 from .config import Settings, resolve
+from .evidence import EvidenceLog
 
 __all__ = ["Result", "research"]
 
@@ -50,5 +52,22 @@ def research(query: str, cli: Mapping | None = None, env: Mapping | None = None)
     """Run a Deep Research and return the report plus Evidence Records."""
     settings = resolve(cli or {}, env if env is not None else os.environ)
     os.environ.update(settings.to_ldr_env())
+
+    evidence_log = EvidenceLog()
+    try:
+        ldr_shim.install(
+            evidence_log=evidence_log,
+            mode=settings.stealth_mode,
+            respect_robots=settings.respect_robots,
+            proxy=settings.proxy,
+        )
+    except Exception:
+        # LDR not importable yet / seam moved — proceed without stealth (degraded).
+        pass
+
     report = _run_ldr(query, settings)
-    return Result(report=report, settings=settings, evidence=[])
+    return Result(
+        report=report,
+        settings=settings,
+        evidence=[r.as_dict() for r in evidence_log.records],
+    )
