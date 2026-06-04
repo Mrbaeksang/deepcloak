@@ -9,6 +9,7 @@ import { cn } from "../lib/utils";
 const CosmicGlobe = dynamic(() => import("../components/CosmicGlobe"), { ssr: false });
 
 const REPO = "https://github.com/Mrbaeksang/deepcloak";
+const YOUTUBE = "https://youtu.be/MMqz-UMWtSI";
 
 type Record = {
   url: string;
@@ -79,6 +80,14 @@ export default function Page() {
             >
               Watch the demo ↓
             </a>
+            <a
+              href={YOUTUBE}
+              target="_blank"
+              rel="noopener"
+              className="rounded-sm border border-borderlit px-6 py-3 font-medium text-white/90 transition hover:border-red-500 hover:text-white"
+            >
+              ▶ YouTube
+            </a>
           </div>
           <p className="mt-7 font-mono text-sm text-muted">pip install deepcloak</p>
         </div>
@@ -96,6 +105,14 @@ export default function Page() {
           Plain fetch is walled, DeepCloak escalates to a stealth Bypass (inset is the real capture),
           then writes a cited report ending with the 🛡️ Bypassed badge.
         </p>
+        <a
+          href={YOUTUBE}
+          target="_blank"
+          rel="noopener"
+          className="mt-4 inline-block rounded-sm border border-borderlit px-4 py-2 text-sm text-white/90 transition hover:border-red-500"
+        >
+          ▶ Watch the full demo on YouTube
+        </a>
       </Section>
 
       {/* 30-second promo (EN / KO) */}

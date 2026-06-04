@@ -15,9 +15,9 @@
 
 [English](README.md) · [한국어](README.ko.md) · **简体中文**
 
-### [▶ 在线演示 — deepcloak.vercel.app](https://deepcloak.vercel.app)
+### [▶ 在线演示 — deepcloak.vercel.app](https://deepcloak.vercel.app)  ·  [▶ 在 YouTube 观看](https://youtu.be/MMqz-UMWtSI)
 
-![DeepCloak 运行：检测 Cloudflare Turnstile → 升级 → 绕过 → 生成带引用的报告](docs/media/demo.gif)
+[![DeepCloak 运行：检测 Cloudflare Turnstile → 升级 → 绕过 → 生成带引用的报告](docs/media/demo.gif)](https://youtu.be/MMqz-UMWtSI)
 
 </div>
 

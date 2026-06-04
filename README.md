@@ -12,12 +12,13 @@
 [![MCP native](https://img.shields.io/badge/MCP-native-22d3ee.svg)](#-use-it-from-an-ai-agent)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-34d399.svg)](CONTRIBUTING.md)
 [![GitHub stars](https://img.shields.io/github/stars/Mrbaeksang/deepcloak?style=social)](https://github.com/Mrbaeksang/deepcloak/stargazers)
+[![Watch on YouTube](https://img.shields.io/badge/▶_demo-YouTube-FF0000.svg)](https://youtu.be/MMqz-UMWtSI)
 
 **English** · [한국어](README.ko.md) · [简体中文](README.zh-CN.md)
 
-### [▶ Live demo — deepcloak.vercel.app](https://deepcloak.vercel.app)
+### [▶ Live demo — deepcloak.vercel.app](https://deepcloak.vercel.app)  ·  [▶ Watch on YouTube](https://youtu.be/MMqz-UMWtSI)
 
-![DeepCloak running: it detects a Cloudflare Turnstile, escalates, and bypasses it — then writes a cited report](docs/media/demo.gif)
+[![DeepCloak running: it detects a Cloudflare Turnstile, escalates, and bypasses it — then writes a cited report](docs/media/demo.gif)](https://youtu.be/MMqz-UMWtSI)
 
 </div>
 

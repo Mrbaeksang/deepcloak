@@ -15,9 +15,9 @@
 
 [English](README.md) · **한국어** · [简体中文](README.zh-CN.md)
 
-### [▶ 라이브 데모 — deepcloak.vercel.app](https://deepcloak.vercel.app)
+### [▶ 라이브 데모 — deepcloak.vercel.app](https://deepcloak.vercel.app)  ·  [▶ 유튜브로 보기](https://youtu.be/MMqz-UMWtSI)
 
-![DeepCloak 실행: Cloudflare Turnstile 감지 → 에스컬레이트 → 우회 → 인용 리포트 작성](docs/media/demo.gif)
+[![DeepCloak 실행: Cloudflare Turnstile 감지 → 에스컬레이트 → 우회 → 인용 리포트 작성](docs/media/demo.gif)](https://youtu.be/MMqz-UMWtSI)
 
 </div>
 
