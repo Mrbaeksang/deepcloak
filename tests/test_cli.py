@@ -11,7 +11,7 @@ def _fake_result(report="# Report\nbody"):
         stealth_mode="auto", depth="detailed", respect_robots=False, out=None,
         proxy=None, searxng_url=None,
     )
-    return rc.Result(report=report, settings=settings, evidence=[])
+    return rc.Result(report=report, settings=settings, evidence=[], evidence_json='{"summary": {}}')
 
 
 def test_cli_prints_report(monkeypatch, capsys):
@@ -31,6 +31,7 @@ def test_cli_writes_out_file(monkeypatch, tmp_path):
     code = cli.main(["q", "--out", str(target)])
     assert code == 0
     assert target.read_text() == "REPORT"
+    assert (tmp_path / "r.md.evidence.json").exists()
 
 
 def test_cli_no_query_prints_help():

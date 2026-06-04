@@ -47,6 +47,26 @@ def test_depth_selects_ldr_function():
     assert out == "report text"
 
 
+def test_badge_appended_to_report_when_sources_bypassed(monkeypatch):
+    from deepcloak.evidence import EvidenceRecord
+
+    def fake_install(*, evidence_log, **kw):
+        evidence_log.add(
+            EvidenceRecord(
+                url="http://walled", bot_wall="cloudflare", escalated=True,
+                bypassed=True, plain_status=403, elapsed_ms=12, signal="bypassed",
+            )
+        )
+
+    monkeypatch.setattr(rc.ldr_shim, "install", fake_install)
+    monkeypatch.setattr(rc, "_run_ldr", lambda q, s: "BODY")
+
+    result = rc.research("q", cli={}, env={"OPENAI_API_KEY": "x"})
+    assert "BODY" in result.report
+    assert "Bypassed 1 bot-walled source" in result.report
+    assert '"bypassed": 1' in result.evidence_json
+
+
 def test_run_ldr_extracts_summary_from_dict():
     class FakeRF:
         @staticmethod

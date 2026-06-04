@@ -6,6 +6,7 @@ the JSON sidecar rendering on top of the same data.
 
 from __future__ import annotations
 
+import json
 from dataclasses import asdict, dataclass, field
 
 __all__ = ["EvidenceRecord", "EvidenceLog"]
@@ -31,3 +32,36 @@ class EvidenceLog:
 
     def add(self, record: EvidenceRecord) -> None:
         self.records.append(record)
+
+    def summary(self) -> dict:
+        walls: dict[str, int] = {}
+        escalated = bypassed = 0
+        for r in self.records:
+            escalated += int(r.escalated)
+            bypassed += int(r.bypassed)
+            if r.bot_wall:
+                walls[r.bot_wall] = walls.get(r.bot_wall, 0) + 1
+        return {
+            "total": len(self.records),
+            "escalated": escalated,
+            "bypassed": bypassed,
+            "walls": walls,
+        }
+
+    def badge(self) -> str:
+        """Markdown section appended to the report. Empty when nothing was bypassed."""
+        s = self.summary()
+        if not s["bypassed"]:
+            return ""
+        plural = "s" if s["bypassed"] != 1 else ""
+        lines = [f"## 🛡️ Bypassed {s['bypassed']} bot-walled source{plural}"]
+        if s["walls"]:
+            parts = ", ".join(f"{k} ×{v}" for k, v in sorted(s["walls"].items()))
+            lines += ["", f"Bot Walls encountered — {parts}."]
+        return "\n".join(lines)
+
+    def to_json(self, indent: int = 2) -> str:
+        return json.dumps(
+            {"summary": self.summary(), "records": [r.as_dict() for r in self.records]},
+            indent=indent,
+        )

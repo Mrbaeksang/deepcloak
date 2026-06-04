@@ -68,7 +68,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.out:
         with open(args.out, "w", encoding="utf-8") as fh:
             fh.write(result.report)
-        print(f"wrote {args.out}")
+        sidecar = f"{args.out}.evidence.json"
+        with open(sidecar, "w", encoding="utf-8") as fh:
+            fh.write(result.evidence_json)
+        print(f"wrote {args.out} (+ {sidecar})")
     else:
         print(result.report)
     return 0

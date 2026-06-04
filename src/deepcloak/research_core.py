@@ -31,6 +31,7 @@ class Result:
     report: str
     settings: Settings
     evidence: list[dict[str, Any]] = field(default_factory=list)
+    evidence_json: str = "{}"
 
 
 def _run_ldr(query: str, settings: Settings, rf: Any | None = None) -> str:
@@ -66,8 +67,12 @@ def research(query: str, cli: Mapping | None = None, env: Mapping | None = None)
         pass
 
     report = _run_ldr(query, settings)
+    badge = evidence_log.badge()
+    if badge:
+        report = f"{report}\n\n{badge}"
     return Result(
         report=report,
         settings=settings,
         evidence=[r.as_dict() for r in evidence_log.records],
+        evidence_json=evidence_log.to_json(),
     )
