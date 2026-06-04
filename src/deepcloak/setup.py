@@ -37,27 +37,39 @@ def _playwright_install() -> bool:
         return False
 
 
-def install_browser() -> tuple[bool, str]:
-    """Best-effort: ensure the stealth browser is available."""
-    try:
-        import cloakbrowser
-    except ImportError:
+_UNSET = object()
+
+
+def install_browser(cb: object = _UNSET) -> tuple[bool, str]:
+    """Best-effort: ensure the stealth browser binary is available.
+
+    ``cb`` is the cloakbrowser module; pass ``None`` to simulate it missing.
+    """
+    if cb is _UNSET:
+        try:
+            import cloakbrowser as cb  # type: ignore
+        except ImportError:
+            cb = None
+    if cb is None:
         return False, "cloakbrowser is not installed — run `pip install deepcloak`."
 
-    install = getattr(cloakbrowser, "install", None)
-    if callable(install):
-        try:
-            install()
-            return True, "Stealth browser installed via cloakbrowser."
-        except Exception:
-            pass
+    # cloakbrowser manages its own stealth Chromium via ensure_binary()/download().
+    for fname in ("ensure_binary", "download", "install"):
+        fn = getattr(cb, fname, None)
+        if callable(fn):
+            try:
+                path = fn()
+                where = f" ({path})" if isinstance(path, str) else ""
+                return True, f"Stealth browser ready via cloakbrowser.{fname}(){where}."
+            except Exception:
+                continue
     if _playwright_install():
-        return True, "Stealth browser (Chromium) installed."
-    return True, "cloakbrowser present; could not confirm browser download — try manually."
+        return True, "Stealth browser (Chromium) installed via Playwright."
+    return True, "cloakbrowser present; could not confirm the browser download — try manually."
 
 
-def run_setup() -> int:
-    ok, msg = install_browser()
+def run_setup(cb: object = _UNSET) -> int:
+    ok, msg = install_browser(cb)
     print(msg)
     for warning in check_env():
         print(f"warning: {warning}")

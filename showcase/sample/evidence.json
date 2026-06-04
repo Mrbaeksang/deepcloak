@@ -1,0 +1,30 @@
+{
+  "summary": {
+    "total": 2,
+    "escalated": 1,
+    "bypassed": 1,
+    "walls": {
+      "turnstile": 1
+    }
+  },
+  "records": [
+    {
+      "url": "https://nowsecure.nl/",
+      "bot_wall": "turnstile",
+      "escalated": true,
+      "bypassed": true,
+      "plain_status": 200,
+      "elapsed_ms": 5293,
+      "signal": "bypassed turnstile: Cloudflare Turnstile widget present"
+    },
+    {
+      "url": "https://example.com/",
+      "bot_wall": null,
+      "escalated": false,
+      "bypassed": false,
+      "plain_status": 200,
+      "elapsed_ms": 101,
+      "signal": "plain ok, no wall"
+    }
+  ]
+}

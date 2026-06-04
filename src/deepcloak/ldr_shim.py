@@ -45,7 +45,13 @@ def _load_ldr_downloader() -> type:
 
 
 def make_fetch_html(*, mode, respect_robots, evidence_log, plain_fetch, stealth_fetch, robots_ok):
+    # LDR may call _fetch_html more than once per URL (download / download_with_result).
+    # Cache per run so we Stealth Fetch once and record exactly one Evidence Record.
+    cache: dict[str, str | None] = {}
+
     def _fetch_html(self, url: str) -> str | None:
+        if url in cache:
+            return cache[url]
         result = fetch(
             url,
             mode=mode,
@@ -55,6 +61,7 @@ def make_fetch_html(*, mode, respect_robots, evidence_log, plain_fetch, stealth_
             robots_ok=robots_ok,
         )
         evidence_log.add(result.evidence)
+        cache[url] = result.content
         return result.content
 
     return _fetch_html
