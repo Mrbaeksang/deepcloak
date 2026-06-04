@@ -49,7 +49,7 @@ DeepCloak의 입장은 단순해요: **브라우저 든 사람이 읽을 수 있
 | 로컬 우선 (API 키 불필요) | ✅ | ✅ |
 | 열린 페이지는 빠르게 | — | ✅ *plain 우선, 필요할 때만 스텔스* |
 
-> **라이브 검증** (`local-deep-research==1.6.11` + `cloakbrowser==0.3.31`): `nowsecure.nl`의 Cloudflare **Turnstile**을 ~5초에 Bypass, 안 막힌 페이지는 ~0.1초 빠른 경로. [`showcase/sample/evidence.json`](showcase/sample/evidence.json) 참고.
+> **라이브 검증 — 목업 아님.** 실제 `deepcloak --depth detailed` 한 번에 **32개 소스 fetch, Cloudflare/Turnstile 벽 11개 Bypass**(cloudflare.com, blog.cloudflare.com, medium.com, capmonster.cloud …), 안 막힌 페이지는 빠른 경로. 위 데모는 그 세션 그대로 재생 — 직접 확인: `asciinema play` [`docs/media/demo.cast`](docs/media/demo.cast)(원본 녹화) 또는 [`docs/media/demo-terminal.mp4`](docs/media/demo-terminal.mp4)(plain 터미널).
 
 ## 🚀 빠른 시작
 

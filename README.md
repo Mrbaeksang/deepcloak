@@ -50,7 +50,7 @@ DeepCloak's stance is simple: **your agent should be able to read what a person 
 | Local-first (no API key required) | ✅ | ✅ |
 | Fast on open pages | — | ✅ *plain-first, stealth only when needed* |
 
-> **Verified live** on `local-deep-research==1.6.11` + `cloakbrowser==0.3.31`: DeepCloak bypassed a Cloudflare **Turnstile** on `nowsecure.nl` in ~5s, while an open page stayed on the fast path in ~0.1s. See [`showcase/sample/evidence.json`](showcase/sample/evidence.json).
+> **Verified live — not mocked.** One real `deepcloak --depth detailed` run fetched **32 sources and Bypassed 11 Cloudflare/Turnstile walls** (cloudflare.com, blog.cloudflare.com, medium.com, capmonster.cloud …) while open pages stayed on the fast path. The demo above replays that exact session — verify it yourself: `asciinema play` [`docs/media/demo.cast`](docs/media/demo.cast) (raw recording) or watch the plain terminal capture in [`docs/media/demo-terminal.mp4`](docs/media/demo-terminal.mp4).
 
 ## 🚀 Quickstart
 
