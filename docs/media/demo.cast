@@ -1,0 +1,5 @@
+{"version": 2, "width": 100, "height": 30, "timestamp": 1780591069, "idle_time_limit": 2.0, "env": {"SHELL": "/usr/bin/zsh", "TERM": "xterm-256color"}}
+[0.043471, "o", "🔎 researching: How does Cloudflare Turnstile detect bots?\r\n"]
+[0.092433, "o", "/home/baek/projects/19_deep-research/.venv/lib/python3.12/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.7.0) or chardet (7.4.3)/charset_normalizer (3.4.7) doesn't match a supported version!\r\n  warnings.warn(\r\n"]
+[12.907268, "o", "✅ done — 0 sources, 0 bot wall(s) bypassed\r\n"]
+[12.907394, "o", "wrote /tmp/dc_demo.md (+ /tmp/dc_demo.md.evidence.json)\r\n"]

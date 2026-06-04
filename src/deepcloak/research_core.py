@@ -34,15 +34,55 @@ class Result:
     evidence_json: str = "{}"
 
 
-def _run_ldr(query: str, settings: Settings, rf: Any | None = None) -> str:
+def _run_ldr(
+    query: str,
+    settings: Settings,
+    evidence_log: Any = None,
+    on_event: Any = None,
+    rf: Any | None = None,
+) -> str:
     """Call local-deep-research's programmatic API. Imported lazily so the
     package (and its pure modules) load without the heavy upstream installed.
     ``rf`` may be injected in tests."""
+    fn_kwargs: dict[str, Any] = {}
     if rf is None:
         from local_deep_research.api import research_functions as rf  # type: ignore
 
+        overrides = settings.to_ldr_overrides()
+
+        # Real integration: hand LDR a StealthRetriever so it synthesises over
+        # full pages we fetched through the stealth path (Bypassing walls),
+        # instead of search snippets. This is what makes a research run actually
+        # read bot-walled sources.
+        if settings.searxng_url:
+            try:
+                from .retriever import build_stealth_retriever
+
+                fn_kwargs["retrievers"] = {
+                    "stealth": build_stealth_retriever(
+                        searxng_url=settings.searxng_url,
+                        mode=settings.stealth_mode,
+                        evidence_log=evidence_log,
+                        on_event=on_event,
+                        respect_robots=settings.respect_robots,
+                        proxy=settings.proxy,
+                    )
+                }
+                overrides["search.tool"] = "stealth"
+            except Exception:
+                pass
+
+        try:
+            from local_deep_research.api.settings_utils import (  # type: ignore
+                create_settings_snapshot,
+            )
+
+            fn_kwargs["settings_snapshot"] = create_settings_snapshot(overrides=overrides)
+        except Exception:
+            pass
+
     fn = getattr(rf, _LDR_FUNCTION[settings.depth])
-    result = fn(query)
+    result = fn(query, **fn_kwargs)
     # LDR functions return either a string or a dict with a summary/report field.
     if isinstance(result, Mapping):
         return str(result.get("summary") or result.get("report") or result)
@@ -82,7 +122,7 @@ def research(
         # LDR not importable yet / seam moved — proceed without stealth (degraded).
         pass
 
-    report = _run_ldr(query, settings)
+    report = _run_ldr(query, settings, evidence_log=evidence_log, on_event=on_event)
     badge = evidence_log.badge()
     if badge:
         report = f"{report}\n\n{badge}"

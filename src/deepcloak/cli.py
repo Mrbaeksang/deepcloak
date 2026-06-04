@@ -23,6 +23,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("query", nargs="?", help="The research question.")
     p.add_argument("--depth", choices=["quick", "detailed", "report"], default="detailed")
     p.add_argument("--engine", choices=["duckduckgo", "searxng", "auto"], default=None)
+    p.add_argument("--searxng-url", dest="searxng_url", default=None,
+                   help="SearXNG instance URL (for --engine searxng)")
     p.add_argument("--stealth", choices=["auto", "always", "off"], default=None)
     p.add_argument("--respect-robots", action="store_true", dest="respect_robots")
     p.add_argument("--proxy", default=None)
@@ -37,7 +39,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def _cli_dict(args: argparse.Namespace) -> dict:
     keys = ("depth", "engine", "stealth", "respect_robots", "proxy",
-            "provider", "model", "base_url", "out")
+            "provider", "model", "base_url", "searxng_url", "out")
     return {k: getattr(args, k) for k in keys if getattr(args, k) not in (None, False)}
 
 

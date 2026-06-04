@@ -82,6 +82,8 @@ def test_to_ldr_env_maps_provider_model_and_key():
     assert env["LDR_LLM_PROVIDER"] == "anthropic"
     assert env["LDR_LLM_MODEL"] == "claude-sonnet-4-6"
     assert env["ANTHROPIC_API_KEY"] == "b"
+    # DeepCloak always fetches full pages (its reason to exist), never snippet-only.
+    assert env["LDR_SEARCH_SNIPPETS_ONLY"] == "false"
 
 
 def test_to_ldr_env_includes_searxng_url_when_set():

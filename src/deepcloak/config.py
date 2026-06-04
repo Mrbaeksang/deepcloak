@@ -67,7 +67,12 @@ class Settings:
 
     def to_ldr_env(self) -> dict[str, str]:
         """Map resolved settings to the LDR_* environment variables LDR reads."""
-        env: dict[str, str] = {"LDR_LLM_PROVIDER": _LDR_PROVIDER[self.provider]}
+        env: dict[str, str] = {
+            "LDR_LLM_PROVIDER": _LDR_PROVIDER[self.provider],
+            # DeepCloak's whole point is reading full pages (and Bypassing walls to
+            # do it), so we always fetch full content — never snippet-only.
+            "LDR_SEARCH_SNIPPETS_ONLY": "false",
+        }
         if self.model:
             env["LDR_LLM_MODEL"] = self.model
         if self.provider == "openai-endpoint":
@@ -81,6 +86,29 @@ class Settings:
         if self.search_engine == "searxng" and self.searxng_url:
             env["LDR_SEARCH_ENGINE_WEB_SEARXNG_DEFAULT_PARAMS_INSTANCE_URL"] = self.searxng_url
         return env
+
+    def to_ldr_overrides(self) -> dict:
+        """Settings as an LDR settings-snapshot override dict (the supported API path).
+
+        Critically sets ``search.snippets_only=False`` so the research loop fetches
+        full pages — which is what routes through the stealth shim and Bypasses walls.
+        """
+        o: dict[str, object] = {
+            "llm.provider": _LDR_PROVIDER[self.provider],
+            "search.snippets_only": False,
+            "search.tool": self.search_engine,
+        }
+        if self.model:
+            o["llm.model"] = self.model
+        if self.provider == "openai-endpoint":
+            if self.base_url:
+                o["llm.openai_endpoint.url"] = self.base_url
+            o["llm.openai_endpoint.api_key"] = self.api_key or "local"
+        elif self.api_key and self.provider in _PROVIDER_KEY:
+            o[f"llm.{self.provider}.api_key"] = self.api_key
+        if self.search_engine == "searxng" and self.searxng_url:
+            o["search.engine.web.searxng.default_params.instance_url"] = self.searxng_url
+        return o
 
 
 def _resolve_provider(cli: Mapping, env: Mapping) -> str:

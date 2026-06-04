@@ -6,7 +6,7 @@ import deepcloak.research_core as rc
 def test_research_applies_ldr_env_and_returns_report(monkeypatch):
     captured = {}
 
-    def fake_run_ldr(query, settings):
+    def fake_run_ldr(query, settings, **kw):
         captured["query"] = query
         captured["provider"] = settings.provider
         return "# Report\nbody"
@@ -59,7 +59,7 @@ def test_badge_appended_to_report_when_sources_bypassed(monkeypatch):
         )
 
     monkeypatch.setattr(rc.ldr_shim, "install", fake_install)
-    monkeypatch.setattr(rc, "_run_ldr", lambda q, s: "BODY")
+    monkeypatch.setattr(rc, "_run_ldr", lambda q, s, **kw: "BODY")
 
     result = rc.research("q", cli={}, env={"OPENAI_API_KEY": "x"})
     assert "BODY" in result.report
