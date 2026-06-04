@@ -4,9 +4,36 @@
 
 :root {
   color-scheme: dark;
+  --foreground: 255 255 255;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: radial-gradient(1200px 600px at 50% -10%, #1a1030 0%, #0a0a0f 55%);
-  color: #e7e7ea;
+  background-color: #0b0b0f;
+  color: #ffffff;
+  /* cosmic field: faint nebula glows over deep space */
+  background-image:
+    radial-gradient(900px 500px at 50% -8%, rgba(133, 59, 206, 0.22), transparent 60%),
+    radial-gradient(700px 500px at 90% 10%, rgba(34, 211, 238, 0.08), transparent 55%),
+    radial-gradient(600px 400px at 5% 30%, rgba(133, 59, 206, 0.10), transparent 55%);
+  background-attachment: fixed;
+}
+
+/* subtle starfield */
+.stars::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 70% 60%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 40% 80%, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1px 1px at 85% 25%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 10% 70%, rgba(255, 255, 255, 0.4), transparent);
+  opacity: 0.6;
 }

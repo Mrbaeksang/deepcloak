@@ -1,76 +1,85 @@
 <div align="center">
 
-# 🛡️ DeepCloak
+<h1>🛡️ DeepCloak</h1>
 
-### 봇 차단(Cloudflare·Datadome·Turnstile·reCAPTCHA) 뒤 페이지까지 읽는 딥리서치 에이전트.
+### 남들은 못 읽는 페이지까지 읽는 딥리서치 에이전트.
+
+**Cloudflare · Datadome · Turnstile · reCAPTCHA — 그냥 통과해서 본문을 가져옵니다.**
 
 [![CI](https://github.com/Mrbaeksang/deepcloak/actions/workflows/ci.yml/badge.svg)](https://github.com/Mrbaeksang/deepcloak/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-a855f7.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
-[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![MCP native](https://img.shields.io/badge/MCP-native-8A2BE2.svg)](#ai-에이전트에서-쓰기-mcp)
+[![MCP native](https://img.shields.io/badge/MCP-native-22d3ee.svg)](#-ai-에이전트에서-쓰기)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-34d399.svg)](CONTRIBUTING.md)
+[![GitHub stars](https://img.shields.io/github/stars/Mrbaeksang/deepcloak?style=social)](https://github.com/Mrbaeksang/deepcloak/stargazers)
 
 [English](README.md) · **한국어** · [简体中文](README.zh-CN.md)
+
+### [▶ 라이브 데모 — deepcloak.vercel.app](https://deepcloak.vercel.app)
+
+![DeepCloak 실행: Cloudflare Turnstile 감지 → 에스컬레이트 → 우회 → 인용 리포트 작성](docs/media/demo.gif)
 
 </div>
 
 ---
 
-다른 로컬 딥리서치 툴은 첫 **Bot Wall**(봇 차단)에서 멈춘다. 중요한 소스가 Cloudflare 뒤에 있으면? `403` 받고 그 소스를 조용히 버린 뒤 더 얇은 리포트를 건넨다 — 뭘 놓쳤는지 너는 알 수도 없다.
+## 문제
 
-**DeepCloak은 안 그런다.** plain fetch가 Bot Wall에 막히면 그 URL을 **Stealth Fetch**로 **에스컬레이트**해 벽을 **Bypass**(우회)하고, 몇 개의 소스를 뚫었는지까지 알려준다.
+리서치 도구에 질문을 던져요. 근데 좋은 소스 절반은 **봇 차단(Bot Wall)** 뒤에 있어요 — Cloudflare, Datadome, Turnstile, reCAPTCHA. 다른 도구들은 `403` 받고 그 페이지를 조용히 버린 뒤 더 얇은 리포트를 줍니다. **뭘 놓쳤는지도 못 알려줘요.**
 
-두 좋은 프로젝트 위의 얇은 오케스트레이터다: [`local-deep-research`](https://github.com/LearningCircuit/local-deep-research)(리서치 루프) + [`CloakBrowser`](https://github.com/CloakHQ/CloakBrowser)(스텔스 브라우저). 로컬 우선, MIT, **CLI·MCP 서버·Claude 스킬**로 사용.
+## DeepCloak이 하는 일
+
+plain fetch가 봇 차단에 막히면, 그 URL만 **Stealth Fetch로 에스컬레이트**해 벽을 **Bypass(우회)** 하고, 다른 에이전트가 포기한 본문을 회수합니다. 그리고 리포트 끝에 **몇 개의 벽을 뚫었는지** 정확히 알려줍니다.
+
+[`local-deep-research`](https://github.com/LearningCircuit/local-deep-research)(리서치 루프) + [`CloakBrowser`](https://github.com/CloakHQ/CloakBrowser)(스텔스 브라우저) 위의 얇은 로컬 우선 오케스트레이터입니다. **CLI · MCP 서버 · Claude 스킬**로 사용. MIT.
 
 ## ✨ 뭐가 다른가
 
-|                              | 일반 딥리서치 | **DeepCloak** |
-| ---------------------------- | :----------: | :-----------: |
-| 열린 웹 읽기                  |      ✅       |       ✅       |
-| Cloudflare/Datadome/Turnstile/reCAPTCHA 페이지 | ❌ (조용히 버림) | ✅ **Bypass** |
-| 어떤 소스가 막혔는지 알려줌    | ❌ | ✅ Evidence Record |
-| 로컬 우선 (API 키 불필요)     | ✅ | ✅ |
-| 열린 페이지는 빠르게 (필요할 때만 스텔스) | — | ✅ plain 우선, 감지 시 에스컬레이트 |
+|  | 일반 딥리서치 | **DeepCloak** |
+| --- | :---: | :---: |
+| 열린 웹 읽기 | ✅ | ✅ |
+| Cloudflare/Datadome/Turnstile/reCAPTCHA 페이지 | ❌ *조용히 버림* | ✅ **Bypass** |
+| 어떤 소스가 막혔는지 알려줌 | ❌ | ✅ Evidence Record |
+| 로컬 우선 (API 키 불필요) | ✅ | ✅ |
+| 열린 페이지는 빠르게 | — | ✅ *plain 우선, 필요할 때만 스텔스* |
 
-> **라이브 검증:** `local-deep-research==1.6.11` + `cloakbrowser==0.3.31`에서 `nowsecure.nl`의 Cloudflare **Turnstile**을 ~5초에 Bypass, 열린 페이지(`example.com`)는 빠른 plain 경로(~0.1초) 유지. [`showcase/sample/evidence.json`](showcase/sample/evidence.json) 참고.
+> **라이브 검증** (`local-deep-research==1.6.11` + `cloakbrowser==0.3.31`): `nowsecure.nl`의 Cloudflare **Turnstile**을 ~5초에 Bypass, 안 막힌 페이지는 ~0.1초 빠른 경로. [`showcase/sample/evidence.json`](showcase/sample/evidence.json) 참고.
 
 ## 🚀 빠른 시작
 
 ```bash
 pip install deepcloak
-deepcloak setup                       # 스텔스 브라우저 내려받기
+deepcloak setup                       # 1회: 스텔스 브라우저 내려받기
 export OPENAI_API_KEY=...             # 또는 ANTHROPIC_API_KEY / GEMINI_API_KEY — 또는 --provider ollama
 deepcloak "Cloudflare Turnstile은 봇을 어떻게 감지하나?" --depth detailed --out report.md
 ```
 
-`report.md`(인용 포함, 끝에 `🛡️ Bypassed N bot-walled sources` 섹션) + `report.md.evidence.json` 사이드카가 생긴다.
+인용 포함 `report.md` (끝에 `🛡️ Bypassed N bot-walled sources` 섹션) + `report.md.evidence.json` 사이드카가 생깁니다.
 
 ## 🧠 작동 방식
 
 ```
-검색 (DuckDuckGo, 설정 불필요) ──► 후보 URL
+검색 (DuckDuckGo, 설정 불필요) ─▶ 후보 URL
+        │
+        ▼  페이지마다:
+   plain fetch ─▶ 봇 차단 감지? ──아니오──▶ 사용 (빠름)
+                        │ 예
+                        ▼
+                  에스컬레이트 ─▶ Stealth Fetch (CloakBrowser) ─▶ Bypass
         │
         ▼
-   페이지마다:  plain fetch ──► Bot Wall 감지? ──아니오──► 사용
-                                     │ 예
-                                     ▼
-                               에스컬레이트 → Stealth Fetch(CloakBrowser) → Bypass
-        │
-        ▼
-리서치 루프 (local-deep-research)  ──►  인용 리포트 + Evidence Records
+리서치 루프 (local-deep-research) ─▶ 인용 리포트 + Evidence Records
 ```
 
-스텔스는 무거워서, 먼저 싼 plain fetch를 하고 **Bot Wall을 실제로 감지했을 때만** 스텔스 브라우저를 띄운다(`--stealth auto`, 기본). `--stealth always`로 강제, `--stealth off`로 비활성.
+스텔스는 무거워서, 먼저 싼 plain fetch를 하고 **봇 차단을 실제로 감지했을 때만** 스텔스 브라우저를 띄웁니다(`--stealth auto`, 기본). `--depth detailed`/`report`가 풀페이지를 가져와 Bypass가 일어납니다.
 
-> **깊이가 중요:** `--depth detailed`/`report`는 풀페이지를 가져온다(여기서 Bypass 발생). `--depth quick`은 스니펫 기반이라 풀페이지를 거의 안 가져온다.
-
-## 🤖 AI 에이전트에서 쓰기 (MCP)
+## 🤖 AI 에이전트에서 쓰기
 
 ```bash
 deepcloak mcp        # stdio MCP 서버
 ```
 
-도구: `deep_research(query, depth)`, `quick_summary(query)`, `get_evidence(run_id)`. 또는 동봉된 [`skill/SKILL.md`](skill/SKILL.md)를 `~/.claude/skills/deepcloak/`에 넣어 Claude 스킬로 사용.
+도구: `deep_research(query, depth)`, `quick_summary(query)`, `get_evidence(run_id)`. 또는 [`skill/SKILL.md`](skill/SKILL.md)를 `~/.claude/skills/deepcloak/`에 넣어 Claude 스킬로 사용.
 
 ## ⚙️ 설정
 
@@ -79,14 +88,26 @@ deepcloak mcp        # stdio MCP 서버
 | `--depth` | `detailed` | `quick` / `detailed` / `report` |
 | `--engine` | `duckduckgo` | `searxng` / `auto` |
 | `--stealth` | `auto` | `always` / `off` |
-| `--provider` / `--model` | 자동감지 | `OPENAI_API_KEY` → `ANTHROPIC_API_KEY` → `GEMINI_API_KEY`, 또는 `ollama` |
+| `--provider` / `--model` | 자동감지 | `OPENAI` → `ANTHROPIC` → `GEMINI`, 또는 `ollama` |
 | `--respect-robots` | 끔 | robots.txt 존중 |
 | `--proxy` | — | Stealth Fetch용 SOCKS5 |
 
 ## ⚠️ 책임 있는 사용
 
-DeepCloak은 봇 감지를 Bypass한다. **가져오는 콘텐츠에 접근할 권리는 너의 책임이다.** robots.txt는 **기본적으로 무시**되며, `--respect-robots`로 존중할 수 있다([ADR-0002](docs/adr/0002-ignore-robots-by-default.md)). 사이트 약관이나 법을 어기는 데 쓰지 말 것.
+DeepCloak은 봇 감지를 Bypass합니다. **가져오는 콘텐츠에 접근할 권리는 너의 책임입니다.** robots.txt는 **기본 무시**되며, `--respect-robots`로 존중할 수 있어요 ([ADR-0002](docs/adr/0002-ignore-robots-by-default.md)). 사이트 약관·법을 어기는 데 쓰지 마세요.
 
-## 📄 라이선스 & 크레딧
+## 🛠️ 기반
 
-MIT — [LICENSE](LICENSE) 참고. [`local-deep-research`](https://github.com/LearningCircuit/local-deep-research) + [`CloakBrowser`](https://github.com/CloakHQ/CloakBrowser)(둘 다 MIT) 기반, [NOTICE](NOTICE) 참고. 용어집은 [CONTEXT.md](CONTEXT.md), 설계 결정은 [docs/adr/](docs/adr/).
+[`local-deep-research`](https://github.com/LearningCircuit/local-deep-research)(MIT) + [`CloakBrowser`](https://github.com/CloakHQ/CloakBrowser)(MIT), pip 의존 — 코드 벤더링 X. 용어집 [CONTEXT.md](CONTEXT.md), 설계 결정 [docs/adr/](docs/adr/), 기여 가이드 [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## 📄 라이선스
+
+MIT — [LICENSE](LICENSE), [NOTICE](NOTICE) 참고.
+
+<div align="center">
+
+**마지막 도구가 포기한 페이지를 DeepCloak이 읽어줬다면, ⭐ 하나 — 다른 사람들이 찾는 데 도움돼요.**
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Mrbaeksang/deepcloak&type=Date)](https://star-history.com/#Mrbaeksang/deepcloak&Date)
+
+</div>
