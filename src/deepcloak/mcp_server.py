@@ -44,9 +44,9 @@ def build_server():
         raise RuntimeError("The MCP server needs `pip install deepcloak[mcp]`.") from exc
 
     server = FastMCP("deepcloak")
-    server.tool()(tool_deep_research)
-    server.tool()(tool_quick_summary)
-    server.tool()(tool_get_evidence)
+    server.tool(name="deep_research")(tool_deep_research)
+    server.tool(name="quick_summary")(tool_quick_summary)
+    server.tool(name="get_evidence")(tool_get_evidence)
     return server
 
 

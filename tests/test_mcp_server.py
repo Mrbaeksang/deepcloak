@@ -35,3 +35,14 @@ def test_quick_summary_uses_quick_depth(monkeypatch):
 
 def test_get_evidence_unknown_run_returns_empty():
     assert mcp.tool_get_evidence("does-not-exist") == "{}"
+
+
+def test_build_server_lists_clean_tool_names():
+    import asyncio
+
+    import pytest
+
+    pytest.importorskip("mcp")  # only runs where the optional MCP dep is installed
+    server = mcp.build_server()
+    names = {t.name for t in asyncio.run(server.list_tools())}
+    assert {"deep_research", "quick_summary", "get_evidence"} <= names

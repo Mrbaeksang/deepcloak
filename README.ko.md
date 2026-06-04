@@ -73,13 +73,25 @@ deepcloak "Cloudflare Turnstile은 봇을 어떻게 감지하나?" --depth detai
 
 스텔스는 무거워서, 먼저 싼 plain fetch를 하고 **봇 차단을 실제로 감지했을 때만** 스텔스 브라우저를 띄웁니다(`--stealth auto`, 기본). `--depth detailed`/`report`가 풀페이지를 가져와 Bypass가 일어납니다.
 
-## 🤖 AI 에이전트에서 쓰기
+## 🤖 에이전트에 연결 (MCP)
 
-```bash
-deepcloak mcp        # stdio MCP 서버
+DeepCloak은 stdio **MCP 서버**로 동작 — `deep_research(query, depth)`, `quick_summary(query)`, `get_evidence(run_id)` 노출.
+
+**Claude Code** — 프로젝트 `.mcp.json`에 추가(예시 파일 레포에 동봉):
+
+```json
+{ "mcpServers": { "deepcloak": { "command": "deepcloak", "args": ["mcp"] } } }
 ```
 
-도구: `deep_research(query, depth)`, `quick_summary(query)`, `get_evidence(run_id)`. 또는 [`skill/SKILL.md`](skill/SKILL.md)를 `~/.claude/skills/deepcloak/`에 넣어 Claude 스킬로 사용.
+**Codex** — `~/.codex/config.toml`에 추가:
+
+```toml
+[mcp_servers.deepcloak]
+command = "deepcloak"
+args = ["mcp"]
+```
+
+그러면 에이전트가 `deep_research`를 호출해 봇월 막힌 소스까지 직접 읽음. 슬래시 스킬이 좋으면 [`skill/SKILL.md`](skill/SKILL.md)를 `~/.claude/skills/deepcloak/`에.
 
 ## ⚙️ 설정
 

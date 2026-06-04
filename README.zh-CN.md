@@ -73,13 +73,25 @@ deepcloak "Cloudflare Turnstile 如何检测机器人？" --depth detailed --out
 
 隐身开销大，所以先尝试廉价的普通抓取，**仅在真正检测到 Bot Wall 时** 才启动隐身浏览器（`--stealth auto`，默认）。用 `--depth detailed`/`report` 抓取完整页面（绕过发生在此）。
 
-## 🤖 在 AI 智能体中使用
+## 🤖 接入你的智能体 (MCP)
 
-```bash
-deepcloak mcp        # stdio MCP 服务器
+DeepCloak 作为 stdio **MCP 服务器** 运行，暴露 `deep_research(query, depth)`、`quick_summary(query)`、`get_evidence(run_id)`。
+
+**Claude Code** — 加入项目的 `.mcp.json`（仓库内含示例）：
+
+```json
+{ "mcpServers": { "deepcloak": { "command": "deepcloak", "args": ["mcp"] } } }
 ```
 
-工具：`deep_research(query, depth)`、`quick_summary(query)`、`get_evidence(run_id)`。或将 [`skill/SKILL.md`](skill/SKILL.md) 放入 `~/.claude/skills/deepcloak/` 作为 Claude 技能。
+**Codex** — 加入 `~/.codex/config.toml`：
+
+```toml
+[mcp_servers.deepcloak]
+command = "deepcloak"
+args = ["mcp"]
+```
+
+然后智能体即可调用 `deep_research`，直接读取被拦截的来源。想用斜杠技能？把 [`skill/SKILL.md`](skill/SKILL.md) 放入 `~/.claude/skills/deepcloak/`。
 
 ## ⚙️ 配置
 
