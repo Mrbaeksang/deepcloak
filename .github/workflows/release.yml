@@ -1,10 +1,12 @@
 name: release
 
-# Publishes to PyPI when a GitHub Release is published.
-# One-time setup on pypi.org → Publishing → add a Trusted Publisher:
-#   PyPI project: deepcloak · owner: Mrbaeksang · repo: deepcloak
-#   workflow: release.yml · environment: pypi
-# No API token needed (OIDC trusted publishing).
+# Publishes to PyPI when a GitHub Release is published. No API token needed (OIDC).
+# One-time setup:
+#   1. pypi.org → Publishing → add a Trusted Publisher:
+#      PyPI project: deepcloak · owner: Mrbaeksang · repo: deepcloak
+#      workflow: release.yml · environment: pypi
+#   2. Repo → Settings → Secrets and variables → Actions → Variables:
+#      add PUBLISH_TO_PYPI = true   (until then this job stays skipped)
 
 on:
   release:
@@ -16,6 +18,10 @@ permissions:
 jobs:
   pypi:
     name: Build and publish to PyPI
+    # Stays skipped until the Trusted Publisher is configured and the repo
+    # variable PUBLISH_TO_PYPI is set to "true" — so publishing a release before
+    # then is a no-op, never a red ✗.
+    if: ${{ vars.PUBLISH_TO_PYPI == 'true' }}
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
@@ -29,3 +35,5 @@ jobs:
       - run: python -m build
       - name: Publish
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
