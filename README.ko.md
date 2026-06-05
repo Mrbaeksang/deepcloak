@@ -6,14 +6,18 @@
 
 **Cloudflare · Datadome · Turnstile · reCAPTCHA — 그냥 통과해서 본문을 가져옵니다.**
 
+[![PyPI](https://img.shields.io/pypi/v/deepcloak?color=a855f7&label=pypi)](https://pypi.org/project/deepcloak/)
 [![CI](https://github.com/Mrbaeksang/deepcloak/actions/workflows/ci.yml/badge.svg)](https://github.com/Mrbaeksang/deepcloak/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-a855f7.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
 [![MCP native](https://img.shields.io/badge/MCP-native-22d3ee.svg)](#-ai-에이전트에서-쓰기)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-34d399.svg)](CONTRIBUTING.md)
 [![GitHub stars](https://img.shields.io/github/stars/Mrbaeksang/deepcloak?style=social)](https://github.com/Mrbaeksang/deepcloak/stargazers)
+[![Watch on YouTube](https://img.shields.io/badge/▶_demo-YouTube-FF0000.svg)](https://youtu.be/p5ompjDLzaI)
 
 [English](README.md) · **한국어** · [简体中文](README.zh-CN.md)
+
+[빠른 시작](#-빠른-시작) · [작동 방식](#-작동-방식) · [에이전트에 연결 (MCP)](#-에이전트에-연결-mcp) · [왜 만들었나](#-왜-만들었나) · [변경 이력](CHANGELOG.md)
 
 ### [▶ 라이브 데모 — deepcloak.vercel.app](https://deepcloak.vercel.app)  ·  [▶ 유튜브로 보기](https://youtu.be/p5ompjDLzaI)
 
@@ -113,6 +117,15 @@ args = ["mcp"]
 ## ⚠️ 책임 있는 사용
 
 DeepCloak은 봇 감지를 Bypass합니다. **가져오는 콘텐츠에 접근할 권리는 너의 책임입니다.** robots.txt는 **기본 무시**되며, `--respect-robots`로 존중할 수 있어요 ([ADR-0002](docs/adr/0002-ignore-robots-by-default.md)). 사이트 약관·법을 어기는 데 쓰지 마세요.
+
+## 🗺️ 로드맵
+
+- Bot Wall 시그니처 추가 + 더 똑똑한 Escalation 휴리스틱
+- DuckDuckGo / SearXNG 외 검색 백엔드 추가
+- Bypass한 페이지 런 간 캐싱
+- Evidence Record 내보내기 강화 (HTML / JSON 스키마)
+
+아이디어 환영 — [Discussion](https://github.com/Mrbaeksang/deepcloak/discussions) 열거나 [기능 제안](https://github.com/Mrbaeksang/deepcloak/issues/new/choose) 주세요.
 
 ## 🛠️ 기반
 

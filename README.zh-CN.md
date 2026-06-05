@@ -6,14 +6,18 @@
 
 **Cloudflare · Datadome · Turnstile · reCAPTCHA —— 直接穿过它们，把正文带回来。**
 
+[![PyPI](https://img.shields.io/pypi/v/deepcloak?color=a855f7&label=pypi)](https://pypi.org/project/deepcloak/)
 [![CI](https://github.com/Mrbaeksang/deepcloak/actions/workflows/ci.yml/badge.svg)](https://github.com/Mrbaeksang/deepcloak/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-a855f7.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
 [![MCP native](https://img.shields.io/badge/MCP-native-22d3ee.svg)](#-在-ai-智能体中使用)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-34d399.svg)](CONTRIBUTING.md)
 [![GitHub stars](https://img.shields.io/github/stars/Mrbaeksang/deepcloak?style=social)](https://github.com/Mrbaeksang/deepcloak/stargazers)
+[![Watch on YouTube](https://img.shields.io/badge/▶_demo-YouTube-FF0000.svg)](https://youtu.be/p5ompjDLzaI)
 
 [English](README.md) · [한국어](README.ko.md) · **简体中文**
+
+[快速开始](#-快速开始) · [工作原理](#-工作原理) · [接入智能体 (MCP)](#-接入你的智能体-mcp) · [我们为何要做它](#-我们为何要做它) · [更新日志](CHANGELOG.md)
 
 ### [▶ 在线演示 — deepcloak.vercel.app](https://deepcloak.vercel.app)  ·  [▶ 在 YouTube 观看](https://youtu.be/p5ompjDLzaI)
 
@@ -113,6 +117,15 @@ args = ["mcp"]
 ## ⚠️ 负责任地使用
 
 DeepCloak 会绕过机器人检测。**你有责任确保自己有权访问所抓取的内容。** robots.txt **默认被忽略**，可用 `--respect-robots` 遵守（[ADR-0002](docs/adr/0002-ignore-robots-by-default.md)）。请勿用于违反网站条款或法律。
+
+## 🗺️ 路线图
+
+- 更多 Bot Wall 特征 + 更智能的 Escalation 启发式
+- 除 DuckDuckGo / SearXNG 外的更多搜索后端
+- 跨运行缓存已绕过的页面
+- 更丰富的 Evidence Record 导出（HTML / JSON schema）
+
+欢迎想法 —— 发起 [Discussion](https://github.com/Mrbaeksang/deepcloak/discussions) 或提交 [功能请求](https://github.com/Mrbaeksang/deepcloak/issues/new/choose)。
 
 ## 🛠️ 构建于
 

@@ -6,6 +6,7 @@
 
 **Cloudflare · Datadome · Turnstile · reCAPTCHA — it walks straight through them.**
 
+[![PyPI](https://img.shields.io/pypi/v/deepcloak?color=a855f7&label=pypi)](https://pypi.org/project/deepcloak/)
 [![CI](https://github.com/Mrbaeksang/deepcloak/actions/workflows/ci.yml/badge.svg)](https://github.com/Mrbaeksang/deepcloak/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-a855f7.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
@@ -15,6 +16,8 @@
 [![Watch on YouTube](https://img.shields.io/badge/▶_demo-YouTube-FF0000.svg)](https://youtu.be/p5ompjDLzaI)
 
 **English** · [한국어](README.ko.md) · [简体中文](README.zh-CN.md)
+
+[Quickstart](#-quickstart) · [How it works](#-how-it-works) · [Use from an agent (MCP)](#-connect-it-to-your-agent-mcp) · [Why we built it](#-why-we-built-this) · [Changelog](CHANGELOG.md)
 
 ### [▶ Live demo — deepcloak.vercel.app](https://deepcloak.vercel.app)  ·  [▶ Watch on YouTube](https://youtu.be/p5ompjDLzaI)
 
@@ -114,6 +117,15 @@ Then your agent can call `deep_research` and read bot-walled sources directly. P
 ## ⚠️ Responsible use
 
 DeepCloak Bypasses bot-detection. **You are responsible for having the right to access whatever you fetch.** robots.txt is **ignored by default**; pass `--respect-robots` to honor it ([ADR-0002](docs/adr/0002-ignore-robots-by-default.md)). Don't use it to violate sites' terms or the law.
+
+## 🗺️ Roadmap
+
+- More Bot Wall signatures + smarter Escalation heuristics
+- More search backends beyond DuckDuckGo / SearXNG
+- Cache Bypassed pages across runs
+- Richer Evidence Record export (HTML / JSON schema)
+
+Ideas welcome — start a [Discussion](https://github.com/Mrbaeksang/deepcloak/discussions) or open a [feature request](https://github.com/Mrbaeksang/deepcloak/issues/new/choose).
 
 ## 🛠️ Built on
 
