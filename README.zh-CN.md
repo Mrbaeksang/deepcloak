@@ -126,6 +126,8 @@ MIT —— 见 [LICENSE](LICENSE) 与 [NOTICE](NOTICE)。
 
 **如果 DeepCloak 读到了上一个工具放弃的页面，点个 ⭐ —— 能帮更多人发现它。**
 
+作者 **[Mrbaeksang](https://baeksang.dev)** · [baeksang.dev](https://baeksang.dev) · [contact@baeksang.dev](mailto:contact@baeksang.dev)
+
 [![Star History Chart](https://api.star-history.com/svg?repos=Mrbaeksang/deepcloak&type=Date)](https://star-history.com/#Mrbaeksang/deepcloak&Date)
 
 </div>

@@ -9,7 +9,7 @@ description = "Local-first deep research agent that reads the whole web — even
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
-authors = [{ name = "Mrbaeksang" }]
+authors = [{ name = "Mrbaeksang", email = "contact@baeksang.dev" }]
 keywords = ["deep-research", "web-scraping", "stealth", "anti-bot", "cloudflare", "mcp", "llm", "ai-agent", "rag", "local-first"]
 
 # ADR-0001: local-deep-research is pinned with == because the stealth shim
@@ -30,6 +30,7 @@ deepcloak = "deepcloak.cli:main"
 [project.urls]
 Homepage = "https://github.com/Mrbaeksang/deepcloak"
 Repository = "https://github.com/Mrbaeksang/deepcloak"
+Author = "https://baeksang.dev"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/deepcloak"]

@@ -127,6 +127,8 @@ MIT — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
 **If DeepCloak read a page your last tool gave up on, drop a ⭐ — it helps others find it.**
 
+Built by **[Mrbaeksang](https://baeksang.dev)** · [baeksang.dev](https://baeksang.dev) · [contact@baeksang.dev](mailto:contact@baeksang.dev)
+
 [![Star History Chart](https://api.star-history.com/svg?repos=Mrbaeksang/deepcloak&type=Date)](https://star-history.com/#Mrbaeksang/deepcloak&Date)
 
 </div>

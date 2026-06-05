@@ -126,6 +126,8 @@ MIT — [LICENSE](LICENSE), [NOTICE](NOTICE) 참고.
 
 **마지막 도구가 포기한 페이지를 DeepCloak이 읽어줬다면, ⭐ 하나 — 다른 사람들이 찾는 데 도움돼요.**
 
+만든 사람 **[Mrbaeksang](https://baeksang.dev)** · [baeksang.dev](https://baeksang.dev) · [contact@baeksang.dev](mailto:contact@baeksang.dev)
+
 [![Star History Chart](https://api.star-history.com/svg?repos=Mrbaeksang/deepcloak&type=Date)](https://star-history.com/#Mrbaeksang/deepcloak&Date)
 
 </div>
