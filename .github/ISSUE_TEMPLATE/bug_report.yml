@@ -1,0 +1,44 @@
+name: 🐛 Bug report
+description: Something didn't work — a fetch, an Escalation, a Bypass, or a report
+labels: ["bug", "investigate"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping make DeepCloak better. Please fill in what you can.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what did you get instead?
+      placeholder: I ran `deepcloak "..."` and the Bypass failed on ...
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: The exact command(s). Redact anything private.
+      render: shell
+      placeholder: |
+        deepcloak "How does Cloudflare Turnstile detect bots?" --depth detailed
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence Record (if any)
+      description: Paste the `*.evidence.json` sidecar or the 🛡️ section of the report — it tells us which Bot Wall was hit and whether the Escalation ran.
+      render: json
+  - type: input
+    id: provider
+    attributes:
+      label: LLM provider / model
+      placeholder: openai / anthropic / ollama / openai-endpoint (local)
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: "`deepcloak --version`, Python, OS"
+      placeholder: deepcloak 0.1.0 · Python 3.12 · Linux
+    validations:
+      required: true
