@@ -35,6 +35,10 @@ Author = "https://baeksang.dev"
 [tool.hatch.build.targets.wheel]
 packages = ["src/deepcloak"]
 
+# Keep the PyPI sdist lean — ship code + docs, not the demo media or showcase site.
+[tool.hatch.build.targets.sdist]
+include = ["src/deepcloak", "README.md", "LICENSE", "NOTICE", "CHANGELOG.md", "pyproject.toml"]
+
 [tool.ruff]
 line-length = 100
 src = ["src", "tests"]

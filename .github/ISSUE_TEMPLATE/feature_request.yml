@@ -1,0 +1,22 @@
+name: 💡 Feature request
+description: Suggest a capability or improvement
+labels: ["enhancement", "spec"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's the problem?
+      description: The use case from your side, not a solution yet.
+      placeholder: When a site uses <X>, DeepCloak can't ...
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like it to do?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
