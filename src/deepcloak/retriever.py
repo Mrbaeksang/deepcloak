@@ -39,6 +39,18 @@ def searxng_search(base_url: str, query: str, max_results: int = 8) -> list[dict
     return out
 
 
+def _cap_content(text: str, max_chars: int | None) -> str:
+    """Cap a document's text so many Bypassed pages still fit a model's context.
+
+    A small local model (e.g. a 16k-context llama-server) overflows when the
+    retriever feeds full pages into the synthesis prompt, so the report step
+    never runs. ``max_chars`` of ``None``/``0`` disables the cap.
+    """
+    if max_chars and len(text) > max_chars:
+        return text[:max_chars]
+    return text
+
+
 def _extract_text(html: str) -> str:
     """Best-effort readable-text extraction (reuses LDR's extractor if present)."""
     try:
@@ -59,6 +71,7 @@ def build_stealth_retriever(
     searxng_url: str,
     mode: str = "auto",
     max_results: int = 8,
+    max_chars: int = 2000,
     evidence_log: Any = None,
     on_event: Any = None,
     respect_robots: bool = False,
@@ -94,7 +107,9 @@ def build_stealth_retriever(
                 if result.content:
                     docs.append(
                         Document(
-                            page_content=_extract_text(result.content),
+                            page_content=_cap_content(
+                                _extract_text(result.content), max_chars
+                            ),
                             metadata={"url": url, "title": hit.get("title", "")},
                         )
                     )
