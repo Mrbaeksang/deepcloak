@@ -9,7 +9,7 @@ import { cn } from "../lib/utils";
 const CosmicGlobe = dynamic(() => import("../components/CosmicGlobe"), { ssr: false });
 
 const REPO = "https://github.com/Mrbaeksang/deepcloak";
-const YOUTUBE = "https://youtu.be/MMqz-UMWtSI";
+const YOUTUBE = "https://youtu.be/p5ompjDLzaI";
 
 type Record = {
   url: string;
