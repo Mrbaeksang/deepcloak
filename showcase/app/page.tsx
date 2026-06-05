@@ -102,8 +102,9 @@ export default function Page() {
           <video className="w-full" src="/demo.mp4" autoPlay muted loop playsInline />
         </div>
         <p className="mx-auto mt-3 max-w-xl text-sm text-muted">
-          Plain fetch is walled, DeepCloak escalates to a stealth Bypass (inset is the real capture),
-          then writes a cited report ending with the 🛡️ Bypassed badge.
+          An unedited screen recording — DeepCloak running against a local LLM (Qwen) + SearXNG,
+          Escalating to a Stealth Fetch on each Bot Wall, Bypassing it, then writing a cited report
+          ending with the 🛡️ Bypassed badge.
         </p>
         <a
           href={YOUTUBE}

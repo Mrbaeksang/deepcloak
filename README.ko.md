@@ -49,7 +49,7 @@ DeepCloak의 입장은 단순해요: **브라우저 든 사람이 읽을 수 있
 | 로컬 우선 (API 키 불필요) | ✅ | ✅ |
 | 열린 페이지는 빠르게 | — | ✅ *plain 우선, 필요할 때만 스텔스* |
 
-> **라이브 검증 — 목업 아님.** 실제 `deepcloak --depth detailed` 한 번에 **32개 소스 fetch, Cloudflare/Turnstile 벽 11개 Bypass**(cloudflare.com, blog.cloudflare.com, medium.com, capmonster.cloud …), 안 막힌 페이지는 빠른 경로. 위 데모는 그 세션 그대로 재생 — 직접 확인: `asciinema play` [`docs/media/demo.cast`](docs/media/demo.cast)(원본 녹화) 또는 [`docs/media/demo-terminal.mp4`](docs/media/demo-terminal.mp4)(plain 터미널).
+> **라이브 검증 — 목업 아님.** 위 영상은 실제 `deepcloak` 런을 `ffmpeg`로 캡처한 **편집 없는 화면 녹화**(합성 X) — **로컬 LLM(Qwen) + SearXNG, API 키 없음**. Bot Wall마다 Escalate해서 한 번에 **Cloudflare/Turnstile 벽 8개 Bypass**하고 인용 리포트 작성. 전체 클립: [`docs/media/demo-real.mp4`](docs/media/demo-real.mp4), 원본 asciinema 세션도 [`docs/media/demo.cast`](docs/media/demo.cast)에 보관. 열린 웹이 매번 달라서 벽 개수도 런마다 다름(8~20).
 
 ## 🚀 빠른 시작
 

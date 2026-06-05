@@ -50,7 +50,7 @@ DeepCloak's stance is simple: **your agent should be able to read what a person 
 | Local-first (no API key required) | ✅ | ✅ |
 | Fast on open pages | — | ✅ *plain-first, stealth only when needed* |
 
-> **Verified live — not mocked.** One real `deepcloak --depth detailed` run fetched **32 sources and Bypassed 11 Cloudflare/Turnstile walls** (cloudflare.com, blog.cloudflare.com, medium.com, capmonster.cloud …) while open pages stayed on the fast path. The demo above replays that exact session — verify it yourself: `asciinema play` [`docs/media/demo.cast`](docs/media/demo.cast) (raw recording) or watch the plain terminal capture in [`docs/media/demo-terminal.mp4`](docs/media/demo-terminal.mp4).
+> **Verified live — not mocked.** The clip above is an **unedited screen recording** (captured with `ffmpeg`, no compositing) of a real `deepcloak` run against a **local LLM (Qwen) + SearXNG — no API key**. It Escalates on each Bot Wall and **Bypasses 8 Cloudflare/Turnstile walls** in one pass, then writes a cited report. Full clip: [`docs/media/demo-real.mp4`](docs/media/demo-real.mp4); a raw asciinema session is also kept at [`docs/media/demo.cast`](docs/media/demo.cast). Wall counts vary per run (8–20) because the open web does.
 
 ## 🚀 Quickstart
 

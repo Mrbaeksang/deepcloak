@@ -1,29 +1,138 @@
 {
   "summary": {
-    "total": 2,
-    "escalated": 1,
-    "bypassed": 1,
+    "total": 16,
+    "escalated": 8,
+    "bypassed": 8,
     "walls": {
-      "turnstile": 1
+      "turnstile": 7,
+      "cloudflare": 1
     }
   },
   "records": [
     {
-      "url": "https://nowsecure.nl/",
-      "bot_wall": "turnstile",
-      "escalated": true,
-      "bypassed": true,
-      "plain_status": 200,
-      "elapsed_ms": 5293,
-      "signal": "bypassed turnstile: Cloudflare Turnstile widget present"
-    },
-    {
-      "url": "https://example.com/",
+      "url": "https://developers.cloudflare.com/turnstile/",
       "bot_wall": null,
       "escalated": false,
       "bypassed": false,
       "plain_status": 200,
-      "elapsed_ms": 101,
+      "elapsed_ms": 54,
+      "signal": "plain ok, no wall"
+    },
+    {
+      "url": "https://roundtable.ai/blog/cloudflare-turnstile-vs-alternatives",
+      "bot_wall": null,
+      "escalated": false,
+      "bypassed": false,
+      "plain_status": 200,
+      "elapsed_ms": 347,
+      "signal": "plain ok, no wall"
+    },
+    {
+      "url": "https://blog.cloudflare.com/upgraded-turnstile-analytics-enable-deeper-insights-faster-investigations/",
+      "bot_wall": "turnstile",
+      "escalated": true,
+      "bypassed": true,
+      "plain_status": 200,
+      "elapsed_ms": 4839,
+      "signal": "bypassed turnstile: Cloudflare Turnstile widget present"
+    },
+    {
+      "url": "https://www.penligent.ai/hackinglabs/chatgpt-and-cloudflare-turnstile-what-the-react-state-analysis-actually-shows/",
+      "bot_wall": "turnstile",
+      "escalated": true,
+      "bypassed": true,
+      "plain_status": 200,
+      "elapsed_ms": 3995,
+      "signal": "bypassed turnstile: Cloudflare Turnstile widget present"
+    },
+    {
+      "url": "https://friendlycaptcha.com/insights/cloudflare-turnstile/",
+      "bot_wall": "turnstile",
+      "escalated": true,
+      "bypassed": true,
+      "plain_status": 200,
+      "elapsed_ms": 7811,
+      "signal": "bypassed turnstile: Cloudflare Turnstile widget present"
+    },
+    {
+      "url": "https://www.cloudflare.com/zh-tw/turnstile-privacy-policy/",
+      "bot_wall": "turnstile",
+      "escalated": true,
+      "bypassed": true,
+      "plain_status": 200,
+      "elapsed_ms": 10857,
+      "signal": "bypassed turnstile: Cloudflare Turnstile widget present"
+    },
+    {
+      "url": "https://botsailor.com/help/en/blog/cloudflare-turnstile-captcha-integration-with-botsailor-easy-secure",
+      "bot_wall": null,
+      "escalated": false,
+      "bypassed": false,
+      "plain_status": 200,
+      "elapsed_ms": 400,
+      "signal": "plain ok, no wall"
+    },
+    {
+      "url": "https://www.linkedin.com/posts/thenextgentechinsider_cloudflare-turnstile-webgl-activity-7443358409099341824--jxE",
+      "bot_wall": null,
+      "escalated": false,
+      "bypassed": false,
+      "plain_status": 200,
+      "elapsed_ms": 529,
+      "signal": "plain ok, no wall"
+    },
+    {
+      "url": "https://medium.com/@ayushaggarwal42003/advanced-evasion-techniques-and-architecture-analysis-of-cloudflare-bot-management-systems-in-2026-1b4ba7cc3b22",
+      "bot_wall": "cloudflare",
+      "escalated": true,
+      "bypassed": true,
+      "plain_status": 403,
+      "elapsed_ms": 4392,
+      "signal": "bypassed cloudflare: Cloudflare interstitial challenge"
+    },
+    {
+      "url": "https://capmonster.cloud/en/blog/how-cloudflare-bot-challenge-and-turnstile-protect-web-traffic/",
+      "bot_wall": "turnstile",
+      "escalated": true,
+      "bypassed": true,
+      "plain_status": 200,
+      "elapsed_ms": 6468,
+      "signal": "bypassed turnstile: Cloudflare Turnstile widget present"
+    },
+    {
+      "url": "https://www.reddit.com/r/CloudFlare/comments/1mfkfrt/low_bot_detection_rate_with_turnstile/",
+      "bot_wall": null,
+      "escalated": false,
+      "bypassed": false,
+      "plain_status": 200,
+      "elapsed_ms": 28,
+      "signal": "plain ok, no wall"
+    },
+    {
+      "url": "https://vercel.com/kb/guide/vercel-botid-vs-cloudflare-turnstile",
+      "bot_wall": "turnstile",
+      "escalated": true,
+      "bypassed": true,
+      "plain_status": 200,
+      "elapsed_ms": 4260,
+      "signal": "bypassed turnstile: Cloudflare Turnstile widget present"
+    },
+    {
+      "url": "https://technologychecker.io/technology/cloudflare-turnstile",
+      "bot_wall": null,
+      "escalated": false,
+      "bypassed": false,
+      "plain_status": 200,
+      "elapsed_ms": 939,
+      "signal": "plain ok, no wall"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=6EnekTohO7I",
+      "bot_wall": null,
+      "escalated": false,
+      "bypassed": false,
+      "plain_status": 200,
+      "elapsed_ms": 722,
       "signal": "plain ok, no wall"
     }
   ]
