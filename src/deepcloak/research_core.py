@@ -54,7 +54,29 @@ def _run_ldr(
         # full pages we fetched through the stealth path (Bypassing walls),
         # instead of search snippets. This is what makes a research run actually
         # read bot-walled sources.
-        if settings.searxng_url:
+        if settings.tavily_api_key and settings.search_engine == "tavily":
+            try:
+                from functools import partial
+
+                from tavily import TavilyClient
+
+                from .retriever import build_stealth_retriever, tavily_search
+
+                tavily_client = TavilyClient(api_key=settings.tavily_api_key)
+                fn_kwargs["retrievers"] = {
+                    "stealth": build_stealth_retriever(
+                        search_fn=partial(tavily_search, tavily_client),
+                        mode=settings.stealth_mode,
+                        evidence_log=evidence_log,
+                        on_event=on_event,
+                        respect_robots=settings.respect_robots,
+                        proxy=settings.proxy,
+                    )
+                }
+                overrides["search.tool"] = "stealth"
+            except Exception:
+                pass
+        elif settings.searxng_url:
             try:
                 from .retriever import build_stealth_retriever
 

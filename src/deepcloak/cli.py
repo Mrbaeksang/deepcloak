@@ -22,7 +22,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--version", action="version", version=f"deepcloak {__version__}")
     p.add_argument("query", nargs="?", help="The research question.")
     p.add_argument("--depth", choices=["quick", "detailed", "report"], default="detailed")
-    p.add_argument("--engine", choices=["duckduckgo", "searxng", "auto"], default=None)
+    p.add_argument("--engine", choices=["duckduckgo", "searxng", "tavily", "auto"], default=None)
     p.add_argument("--searxng-url", dest="searxng_url", default=None,
                    help="SearXNG instance URL (for --engine searxng)")
     p.add_argument("--stealth", choices=["auto", "always", "off"], default=None)

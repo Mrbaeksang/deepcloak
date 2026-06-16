@@ -108,11 +108,22 @@ Then your agent can call `deep_research` and read bot-walled sources directly. P
 | Flag | Default | Notes |
 | --- | --- | --- |
 | `--depth` | `detailed` | `quick` / `detailed` / `report` |
-| `--engine` | `duckduckgo` | `searxng` / `auto` |
+| `--engine` | `duckduckgo` | `searxng` / `tavily` / `auto` |
 | `--stealth` | `auto` | `always` / `off` |
 | `--provider` / `--model` | auto-detected | `OPENAI` → `ANTHROPIC` → `GEMINI`, or `ollama` |
 | `--respect-robots` | off | honor robots.txt |
 | `--proxy` | — | SOCKS5 for the Stealth Fetch |
+
+### Tavily search engine
+
+To use [Tavily](https://tavily.com) as the search backend:
+
+```bash
+export TAVILY_API_KEY=tvly-...
+deepcloak "your query" --engine tavily
+```
+
+Tavily is an optional dependency — install with `pip install deepcloak[tavily]`.
 
 ## ⚠️ Responsible use
 

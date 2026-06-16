@@ -124,6 +124,32 @@ def test_openai_endpoint_needs_no_key_and_maps_env():
     assert env["LDR_LLM_MODEL"] == "qwen"
 
 
+def test_tavily_engine_reads_api_key_from_env():
+    s = resolve(
+        cli={"engine": "tavily"},
+        env={"OPENAI_API_KEY": "x", "TAVILY_API_KEY": "tvly-test"},
+    )
+    assert s.search_engine == "tavily"
+    assert s.tavily_api_key == "tvly-test"
+
+
+def test_tavily_engine_without_key_raises():
+    with pytest.raises(ConfigError) as exc:
+        resolve(cli={"engine": "tavily"}, env={"OPENAI_API_KEY": "x"})
+    assert "TAVILY_API_KEY" in str(exc.value)
+
+
+def test_tavily_to_ldr_overrides_maps_to_safe_default():
+    """When search_engine is 'tavily', to_ldr_overrides() should emit a
+    LDR-known search.tool (duckduckgo), not the raw 'tavily' string."""
+    s = resolve(
+        cli={"engine": "tavily"},
+        env={"OPENAI_API_KEY": "x", "TAVILY_API_KEY": "tvly-test"},
+    )
+    overrides = s.to_ldr_overrides()
+    assert overrides["search.tool"] == "duckduckgo"
+
+
 def test_openai_endpoint_base_url_from_env():
     s = resolve(
         cli={"provider": "openai-endpoint"},

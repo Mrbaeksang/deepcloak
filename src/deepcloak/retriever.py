@@ -17,7 +17,7 @@ from typing import Any
 from .fetch_router import fetch
 from .stealth_downloader import plain_get, stealth_get
 
-__all__ = ["build_stealth_retriever", "searxng_search"]
+__all__ = ["build_stealth_retriever", "searxng_search", "tavily_search"]
 
 
 def searxng_search(base_url: str, query: str, max_results: int = 8) -> list[dict]:
@@ -33,6 +33,21 @@ def searxng_search(base_url: str, query: str, max_results: int = 8) -> list[dict
     r.raise_for_status()
     out: list[dict] = []
     for item in (r.json().get("results") or [])[:max_results]:
+        url = item.get("url")
+        if url:
+            out.append({"url": url, "title": item.get("title", "")})
+    return out
+
+
+def tavily_search(client: Any, query: str, max_results: int = 8) -> list[dict]:
+    """Query Tavily and return [{url, title}] hits.
+
+    ``client`` is a pre-constructed ``TavilyClient`` instance — construct it
+    once in the caller and pass via ``functools.partial``.
+    """
+    response = client.search(query=query, max_results=max_results)
+    out: list[dict] = []
+    for item in response.get("results", []):
         url = item.get("url")
         if url:
             out.append({"url": url, "title": item.get("title", "")})
@@ -68,7 +83,8 @@ def _extract_text(html: str) -> str:
 
 def build_stealth_retriever(
     *,
-    searxng_url: str,
+    searxng_url: str | None = None,
+    search_fn: Any = None,
     mode: str = "auto",
     max_results: int = 8,
     max_chars: int = 2000,
@@ -78,10 +94,19 @@ def build_stealth_retriever(
     robots_ok: Any = None,
     proxy: str | None = None,
 ):
-    """Construct a LangChain BaseRetriever backed by the stealth fetch path."""
+    """Construct a LangChain BaseRetriever backed by the stealth fetch path.
+
+    ``search_fn`` is a callable ``(query, max_results) -> [{url, title}]``.
+    When omitted, defaults to ``searxng_search`` bound to *searxng_url*.
+    """
     from functools import partial
 
     from langchain_core.retrievers import BaseRetriever, Document  # type: ignore
+
+    if search_fn is None:
+        if searxng_url is None:
+            raise ValueError("Either search_fn or searxng_url must be provided")
+        search_fn = partial(searxng_search, searxng_url)
 
     stealth_fetch = partial(stealth_get, proxy=proxy)
 
@@ -90,7 +115,7 @@ def build_stealth_retriever(
 
         def _get_relevant_documents(self, query: str, *, run_manager=None):  # noqa: D401
             docs = []
-            for hit in searxng_search(searxng_url, query, max_results):
+            for hit in search_fn(query, max_results):
                 url = hit["url"]
                 result = fetch(
                     url,

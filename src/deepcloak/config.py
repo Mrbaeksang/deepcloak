@@ -29,7 +29,7 @@ _KEYLESS_PROVIDERS = {"ollama", "openai-endpoint"}
 
 _VALID_STEALTH = {"auto", "always", "off"}
 _VALID_DEPTH = {"quick", "detailed", "report"}
-_VALID_ENGINE = {"duckduckgo", "searxng", "auto"}
+_VALID_ENGINE = {"duckduckgo", "searxng", "tavily", "auto"}
 
 _DEFAULT_MODEL = {
     "openai": "gpt-4.1",
@@ -63,6 +63,7 @@ class Settings:
     out: str | None
     proxy: str | None
     searxng_url: str | None
+    tavily_api_key: str | None = None
     base_url: str | None = None  # for provider "openai-endpoint" (local OpenAI-compatible)
 
     def to_ldr_env(self) -> dict[str, str]:
@@ -96,7 +97,7 @@ class Settings:
         o: dict[str, object] = {
             "llm.provider": _LDR_PROVIDER[self.provider],
             "search.snippets_only": False,
-            "search.tool": self.search_engine,
+            "search.tool": self.search_engine if self.search_engine in {"duckduckgo", "searxng"} else "duckduckgo",
         }
         if self.model:
             o["llm.model"] = self.model
@@ -146,6 +147,10 @@ def resolve(cli: Mapping, env: Mapping) -> Settings:
         "LDR_SEARCH_ENGINE_WEB_SEARXNG_DEFAULT_PARAMS_INSTANCE_URL"
     )
 
+    tavily_api_key = env.get("TAVILY_API_KEY")
+    if search_engine == "tavily" and not tavily_api_key:
+        raise ConfigError("--engine tavily requires TAVILY_API_KEY to be set.")
+
     base_url = cli.get("base_url") or env.get("LDR_LLM_OPENAI_ENDPOINT_URL")
     if provider == "openai-endpoint" and not base_url:
         raise ConfigError(
@@ -164,5 +169,6 @@ def resolve(cli: Mapping, env: Mapping) -> Settings:
         out=cli.get("out"),
         proxy=cli.get("proxy"),
         searxng_url=searxng_url,
+        tavily_api_key=tavily_api_key,
         base_url=base_url,
     )
