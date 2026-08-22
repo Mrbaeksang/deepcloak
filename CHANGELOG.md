@@ -5,6 +5,29 @@ All notable changes to DeepCloak are documented here. Format follows
 
 ## [Unreleased]
 
+### Added
+- `deepcloak models [--provider X] [--base-url U]` — list a provider's models over its
+  public API (OpenRouter, OpenAI, Anthropic, Gemini, Ollama, LM Studio, llama.cpp,
+  any OpenAI-compatible endpoint). Also exposed as an MCP `list_models` tool.
+- MCP tools accept `provider` / `model`; stored runs are capped so long-lived servers
+  don't leak.
+- `--json` output mode — one JSON object with the query, report, Evidence Records and
+  resolved settings (API key omitted) for scripting and piping.
+- Config file support: `~/.config/deepcloak/config.toml` (or `$DEEPCLOAK_CONFIG`);
+  precedence CLI flags > environment > file. `lmstudio` / `llamacpp` joined as
+  first-class providers.
+- Live research-phase progress on stderr (LDR's `progress_callback`), next to the
+  existing Evidence Record lines.
+
+### Fixed
+- `gemini` provider was broken end-to-end: DeepCloak now maps it to LDR's native
+  `google` provider and writes the key to `llm.google.api_key`.
+- `openrouter` credentials never reached LDR (placeholder key → 401): DeepCloak now
+  routes through LDR's native `openrouter` provider instead of an `openai_endpoint`
+  detour.
+- Degraded runs no longer fail silently: a missing stealth shim or settings snapshot
+  prints a loud warning (a run without them cannot Bypass any Bot Wall).
+
 ## [0.1.0] — 2026-06-05
 
 First public release.

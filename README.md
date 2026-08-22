@@ -85,7 +85,7 @@ Stealth is heavy, so DeepCloak tries a cheap plain fetch first and only launches
 
 ## 🤖 Connect it to your agent (MCP)
 
-DeepCloak runs as a stdio **MCP server** exposing `deep_research(query, depth)`, `quick_summary(query)`, and `get_evidence(run_id)`.
+DeepCloak runs as a stdio **MCP server** exposing `deep_research(query, depth, provider, model)`, `quick_summary(query, provider, model)`, `get_evidence(run_id)`, and `list_models(provider)`.
 
 **Claude Code** — add to your project's `.mcp.json` (an example ships in this repo):
 
@@ -110,9 +110,12 @@ Then your agent can call `deep_research` and read bot-walled sources directly. P
 | `--depth` | `detailed` | `quick` / `detailed` / `report` |
 | `--engine` | `duckduckgo` | `searxng` / `auto` |
 | `--stealth` | `auto` | `always` / `off` |
-| `--provider` / `--model` | auto-detected | `OPENAI` → `ANTHROPIC` → `GEMINI`, or `ollama` |
+| `--provider` / `--model` | auto-detected | `OPENAI_API_KEY` → `ANTHROPIC_API_KEY` → `GEMINI_API_KEY` → `OPENROUTER_API_KEY`; or `ollama` / `lmstudio` / `llamacpp` / `openai-endpoint` (`--base-url`) |
 | `--respect-robots` | off | honor robots.txt |
 | `--proxy` | — | SOCKS5 for the Stealth Fetch |
+| `--json` | off | print the full result (report + Evidence Records + settings) as JSON |
+
+**Picking a model:** list what a provider offers with `deepcloak models --provider openrouter` (works for every provider; local servers via `--base-url`), then pass `--model <id>`. Settings persist in `~/.config/deepcloak/config.toml` (override with `$DEEPCLOAK_CONFIG`); precedence: CLI flags > environment > config file.
 
 ## ⚠️ Responsible use
 

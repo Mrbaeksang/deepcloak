@@ -8,32 +8,74 @@ functions so they're testable without the MCP runtime installed.
 from __future__ import annotations
 
 import itertools
+import json
+import os
+from collections import OrderedDict
 
-__all__ = ["tool_deep_research", "tool_quick_summary", "tool_get_evidence", "build_server", "serve"]
+from .providers import ProviderError, detect, get, list_models
 
-_RUNS: dict[str, str] = {}
+__all__ = [
+    "tool_deep_research",
+    "tool_quick_summary",
+    "tool_get_evidence",
+    "tool_list_models",
+    "build_server",
+    "serve",
+]
+
+# Evidence stores are capped so a long-lived server can't leak without bound.
+_MAX_STORED_RUNS = 50
+_RUNS: OrderedDict[str, str] = OrderedDict()
+_LAST: str | None = None
 _COUNTER = itertools.count(1)
 
 
-def tool_deep_research(query: str, depth: str = "detailed") -> str:
+def _store_run(run_id: str, evidence_json: str) -> None:
+    global _LAST
+    _RUNS[run_id] = evidence_json
+    _LAST = evidence_json
+    while len(_RUNS) > _MAX_STORED_RUNS:
+        _RUNS.popitem(last=False)
+
+
+def tool_deep_research(
+    query: str, depth: str = "detailed", provider: str | None = None, model: str | None = None
+) -> str:
     """Run a Deep Research with stealth fetch and return the cited report."""
     from .research_core import research
 
-    result = research(query, cli={"depth": depth})
+    opts: dict[str, str] = {"depth": depth}
+    if provider:
+        opts["provider"] = provider
+    if model:
+        opts["model"] = model
+    result = research(query, cli=opts)
     run_id = str(next(_COUNTER))
-    _RUNS[run_id] = result.evidence_json
-    _RUNS["last"] = result.evidence_json
+    _store_run(run_id, result.evidence_json)
     return result.report
 
 
-def tool_quick_summary(query: str) -> str:
+def tool_quick_summary(query: str, provider: str | None = None, model: str | None = None) -> str:
     """Fast, shallow answer for a query."""
-    return tool_deep_research(query, depth="quick")
+    return tool_deep_research(query, depth="quick", provider=provider, model=model)
 
 
 def tool_get_evidence(run_id: str = "last") -> str:
     """Return the Evidence Records (JSON) of a prior run; 'last' for the latest."""
+    if run_id == "last":
+        return _LAST or "{}"
     return _RUNS.get(run_id, "{}")
+
+
+def tool_list_models(provider: str | None = None) -> str:
+    """List model ids for an LLM provider as JSON; omit provider to auto-detect."""
+    try:
+        name = provider or detect(dict(os.environ))
+        spec = get(name)
+        api_key = os.environ.get(spec.env_key) if spec.env_key else None
+        return json.dumps(list_models(name, api_key=api_key))
+    except ProviderError as exc:
+        return json.dumps({"error": str(exc)})
 
 
 def build_server():
@@ -47,6 +89,7 @@ def build_server():
     server.tool(name="deep_research")(tool_deep_research)
     server.tool(name="quick_summary")(tool_quick_summary)
     server.tool(name="get_evidence")(tool_get_evidence)
+    server.tool(name="list_models")(tool_list_models)
     return server
 
 

@@ -110,9 +110,12 @@ args = ["mcp"]
 | `--depth` | `detailed` | `quick` / `detailed` / `report` |
 | `--engine` | `duckduckgo` | `searxng` / `auto` |
 | `--stealth` | `auto` | `always` / `off` |
-| `--provider` / `--model` | 자동감지 | `OPENAI` → `ANTHROPIC` → `GEMINI`, 또는 `ollama` |
+| `--provider` / `--model` | 자동감지 | `OPENAI_API_KEY` → `ANTHROPIC_API_KEY` → `GEMINI_API_KEY` → `OPENROUTER_API_KEY`; 또는 `ollama` / `lmstudio` / `llamacpp` / `openai-endpoint` (`--base-url`) |
 | `--respect-robots` | 끔 | robots.txt 존중 |
 | `--proxy` | — | Stealth Fetch용 SOCKS5 |
+| `--json` | 끔 | 결과 전체(리포트 + Evidence Record + 설정)를 JSON으로 출력 |
+
+**모델 고르기:** `deepcloak models --provider openrouter`로 프로바이더가 제공하는 모델 목록 확인 (전 프로바이더 지원, 로컬 서버는 `--base-url`). 이후 `--model <id>`로 지정. 설정은 `~/.config/deepcloak/config.toml`에 저장 가능(`$DEEPCLOAK_CONFIG`로 경로 변경). 우선순위: CLI 플래그 > 환경변수 > 설정 파일.
 
 ## ⚠️ 책임 있는 사용
 

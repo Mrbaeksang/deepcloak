@@ -27,6 +27,20 @@ def test_autodetects_gemini():
     assert s.provider == "gemini"
 
 
+def test_gemini_overrides_target_ldrs_native_google_provider():
+    s = resolve(cli={}, env={"GEMINI_API_KEY": "g"})
+    o = s.to_ldr_overrides()
+    assert o["llm.provider"] == "google"
+    assert o["llm.google.api_key"] == "g"
+
+
+def test_openrouter_overrides_target_ldrs_native_openrouter_provider():
+    s = resolve(cli={"model": "openai/gpt-4.1"}, env={"OPENROUTER_API_KEY": "or"})
+    o = s.to_ldr_overrides()
+    assert o["llm.provider"] == "openrouter"
+    assert o["llm.openrouter.api_key"] == "or"
+
+
 def test_cli_provider_overrides_env_autodetect():
     s = resolve(
         cli={"provider": "anthropic"},
@@ -130,3 +144,60 @@ def test_openai_endpoint_base_url_from_env():
         env={"LDR_LLM_OPENAI_ENDPOINT_URL": "http://localhost:8080/v1"},
     )
     assert s.base_url == "http://localhost:8080/v1"
+
+
+def test_config_file_fills_gaps_but_never_beats_flags_or_env():
+    file = {"depth": "report", "stealth": "off", "model": "from-file"}
+
+    s = resolve(cli={}, env={"OPENAI_API_KEY": "x"}, file=file)
+    assert s.depth == "report"
+    assert s.stealth_mode == "off"
+    assert s.model == "from-file"
+
+    s = resolve(
+        cli={"model": "from-flag"},
+        env={"OPENAI_API_KEY": "x", "DEEPCLOAK_MODEL": "from-env"},
+        file=file,
+    )
+    assert s.model == "from-flag"
+
+    s = resolve(cli={}, env={"OPENAI_API_KEY": "x", "DEEPCLOAK_MODEL": "from-env"}, file=file)
+    assert s.model == "from-env"
+
+
+def test_provider_in_config_file_disables_autodetection():
+    s = resolve(cli={}, env={"ANTHROPIC_API_KEY": "b"}, file={"provider": "ollama"})
+    assert s.provider == "ollama"
+    assert s.api_key is None
+
+
+def test_respect_robots_accepted_from_env_and_file():
+    s = resolve(
+        cli={},
+        env={"OPENAI_API_KEY": "x", "DEEPCLOAK_RESPECT_ROBOTS": "true"},
+    )
+    assert s.respect_robots is True
+    s = resolve(cli={}, env={"OPENAI_API_KEY": "x"}, file={"respect_robots": True})
+    assert s.respect_robots is True
+
+
+def test_load_config_file_reads_toml_and_ignores_unknown_keys(tmp_path):
+    from deepcloak.config import load_config_file
+
+    cfg = tmp_path / "config.toml"
+    cfg.write_text('provider = "ollama"\nmodel = "llama3.1"\nbogus_key = 1\n')
+    loaded = load_config_file(str(cfg))
+    assert loaded == {"provider": "ollama", "model": "llama3.1"}
+    assert load_config_file(str(tmp_path / "missing.toml")) == {}
+
+
+def test_load_config_file_rejects_malformed_toml(tmp_path):
+    import pytest
+
+    from deepcloak.config import ConfigError, load_config_file
+
+    bad = tmp_path / "broken.toml"
+    bad.write_text("not [valid toml")
+    with pytest.raises(ConfigError) as exc:
+        load_config_file(str(bad))
+    assert "not valid TOML" in str(exc.value)

@@ -1,5 +1,7 @@
 """Smoke tests for the MCP tool functions (research_core stubbed)."""
 
+import json
+
 import deepcloak.mcp_server as mcp
 import deepcloak.research_core as rc
 from deepcloak.config import Settings
@@ -35,6 +37,38 @@ def test_quick_summary_uses_quick_depth(monkeypatch):
 
 def test_get_evidence_unknown_run_returns_empty():
     assert mcp.tool_get_evidence("does-not-exist") == "{}"
+
+
+def test_research_tools_accept_provider_and_model(monkeypatch):
+    seen = {}
+
+    def fake(q, cli=None):
+        seen.update(cli or {})
+        return _result()
+
+    monkeypatch.setattr(rc, "research", fake)
+    mcp.tool_deep_research("q", depth="report", provider="gemini", model="gemini-2.5-pro")
+    assert seen["depth"] == "report"
+    assert seen["provider"] == "gemini"
+    assert seen["model"] == "gemini-2.5-pro"
+
+
+def test_list_models_tool_returns_json_ids(monkeypatch):
+    monkeypatch.setattr(mcp, "list_models", lambda provider, **kw: ["b", "a"])
+    out = mcp.tool_list_models("openai")
+    assert '"b"' in out and '"a"' in out
+
+
+def test_run_store_evicts_oldest_but_keeps_last(monkeypatch):
+    monkeypatch.setattr(rc, "research", lambda q, cli=None: _result(evidence_json='{"n": 1}'))
+    mcp._RUNS.clear()
+    ids = []
+    for _ in range(mcp._MAX_STORED_RUNS + 3):
+        mcp.tool_deep_research("q")
+        ids.append(str(next(iter(mcp._RUNS))))
+    assert len(mcp._RUNS) == mcp._MAX_STORED_RUNS
+    assert ids[0] not in mcp._RUNS  # oldest evicted
+    assert json.loads(mcp.tool_get_evidence("last")) == {"n": 1}
 
 
 def test_build_server_lists_clean_tool_names():
