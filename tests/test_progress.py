@@ -1,7 +1,12 @@
 """Tests for live progress formatting."""
 
 from deepcloak.evidence import EvidenceRecord
-from deepcloak.progress import format_event, format_phase, make_phase_printer
+from deepcloak.progress import (
+    ProgressReporter,
+    format_event,
+    format_phase,
+    make_phase_printer,
+)
 
 
 def _rec(**kw):
@@ -47,3 +52,62 @@ def test_phase_printer_writes_to_stderr(capsys):
     printer("planning", 10, {"description": "Planning searches"})
     err = capsys.readouterr().err
     assert "Planning searches" in err and "10%" in err
+
+
+# --- ProgressReporter -------------------------------------------------------
+
+
+def test_reporter_plain_fallback_streams_lines_without_rich(monkeypatch):
+    import io
+
+    monkeypatch.delitem(__import__("sys").modules, "rich", raising=False)
+    r = ProgressReporter(stream=io.StringIO())
+    with r:
+        r.phase("searching", 25, {"description": "Reading pages"})
+        r(_rec())
+    out = r.stream.getvalue()
+    assert "Reading pages" in out and "25%" in out
+    assert "nowsecure.nl" in out  # Evidence Record line went through the same sink
+
+
+def test_reporter_uses_rich_status_when_available(monkeypatch):
+    import io
+    import sys
+    import types
+
+    updates, printed = [], []
+
+    class FakeStatus:
+        def __init__(self, text):
+            self.text = text
+
+        def start(self):
+            pass
+
+        def stop(self):
+            pass
+
+        def update(self, text):
+            updates.append(text)
+
+    class FakeConsole:
+        def __init__(self, file=None, highlight=False):
+            pass
+
+        def status(self, text):
+            return FakeStatus(text)
+
+        def print(self, text):
+            printed.append(text)
+
+    rich_mod = types.ModuleType("rich")
+    console_mod = types.ModuleType("rich.console")
+    console_mod.Console = FakeConsole
+    rich_mod.console = console_mod
+    monkeypatch.setitem(sys.modules, "rich", rich_mod)
+    monkeypatch.setitem(sys.modules, "rich.console", console_mod)
+
+    r = ProgressReporter(stream=io.StringIO())
+    with r:
+        r.phase("searching", 25, {"description": "Reading pages"})
+    assert updates == ["▸ Reading pages… 25%"]

@@ -115,7 +115,9 @@ Then your agent can call `deep_research` and read bot-walled sources directly. P
 | `--proxy` | — | SOCKS5 for the Stealth Fetch |
 | `--json` | off | print the full result (report + Evidence Records + settings) as JSON |
 
-**Picking a model:** list what a provider offers with `deepcloak models --provider openrouter` (works for every provider; local servers via `--base-url`), then pass `--model <id>`. Settings persist in `~/.config/deepcloak/config.toml` (override with `$DEEPCLOAK_CONFIG`); precedence: CLI flags > environment > config file.
+**Picking a model:** list what a provider offers with `deepcloak models --provider openrouter` (works for every provider; local servers via `--base-url`), then pass `--model <id>`. With several credentials in your environment and a real terminal, DeepCloak simply asks. Settings persist in `~/.config/deepcloak/config.toml` (override with `$DEEPCLOAK_CONFIG`); precedence: CLI flags > environment > config file.
+
+**Run history:** finished runs are saved to `~/.local/share/deepcloak/runs/` — browse with `deepcloak runs`, replay a report with `deepcloak show <id>` (`--json` for the full record).
 
 ## ⚠️ Responsible use
 

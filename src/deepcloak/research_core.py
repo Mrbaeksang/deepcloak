@@ -112,7 +112,10 @@ def _run_ldr(
         if supported:
             from .progress import make_phase_printer
 
-            fn_kwargs["progress_callback"] = make_phase_printer()
+            fn_kwargs["progress_callback"] = (
+                getattr(on_event, "phase", None)
+                or make_phase_printer()
+            )
     result = fn(query, **fn_kwargs)
     # LDR functions return either a string or a dict with a summary/report field.
     if isinstance(result, Mapping):
@@ -138,30 +141,37 @@ def research(
     )
     os.environ.update(settings.to_ldr_env())
 
-    on_event = None
+    reporter = None
     if verbose:
-        from .progress import stderr_printer as on_event
+        from .progress import ProgressReporter
 
-        print(f"🔎 researching: {query}", file=sys.stderr, flush=True)
+        reporter = ProgressReporter()
+        reporter.evidence_line(f"🔎 researching: {query}")
 
     evidence_log = EvidenceLog()
-    try:
-        ldr_shim.install(
-            evidence_log=evidence_log,
-            mode=settings.stealth_mode,
-            respect_robots=settings.respect_robots,
-            proxy=settings.proxy,
-            on_event=on_event,
-        )
-    except Exception as exc:
-        # LDR not importable yet / seam moved — proceed without Stealth Fetch,
-        # but never silently: a run without the shim cannot Bypass any Bot Wall.
-        _warn(
-            f"Stealth Fetch shim not installed ({exc}) — bot-walled pages "
-            "will NOT be bypassed this run (degraded mode)"
-        )
 
-    report = _run_ldr(query, settings, evidence_log=evidence_log, on_event=on_event)
+    import contextlib
+
+    with contextlib.nullcontext() if reporter is None else reporter:
+        try:
+            ldr_shim.install(
+                evidence_log=evidence_log,
+                mode=settings.stealth_mode,
+                respect_robots=settings.respect_robots,
+                proxy=settings.proxy,
+                on_event=reporter,
+            )
+        except Exception as exc:
+            # LDR not importable yet / seam moved — proceed without Stealth Fetch,
+            # but never silently: a run without the shim cannot Bypass any Bot Wall.
+            _warn(
+                f"Stealth Fetch shim not installed ({exc}) — bot-walled pages "
+                "will NOT be bypassed this run (degraded mode)"
+            )
+
+        report = _run_ldr(
+            query, settings, evidence_log=evidence_log, on_event=reporter
+        )
     badge = evidence_log.badge()
     if badge:
         report = f"{report}\n\n{badge}"

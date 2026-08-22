@@ -12,12 +12,26 @@ pure modules and CI stay free of it.
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
 from .fetch_router import fetch
 from .stealth_downloader import plain_get, stealth_get
 
-__all__ = ["build_stealth_retriever", "searxng_search"]
+__all__ = ["build_stealth_retriever", "searxng_search", "gather_hits"]
+
+
+def gather_hits(hits: list, do_fetch: Callable, max_workers: int = 8) -> list:
+    """Fetch hits concurrently (thread pool), returning results in input order.
+
+    ``pool.map`` preserves order, so Evidence Records and documents keep a
+    stable sequence regardless of which fetch finishes first.
+    """
+    if len(hits) <= 1:
+        return [do_fetch(h) for h in hits]
+    with ThreadPoolExecutor(max_workers=min(max_workers, len(hits))) as pool:
+        return list(pool.map(do_fetch, hits))
 
 
 def searxng_search(base_url: str, query: str, max_results: int = 8) -> list[dict]:
@@ -88,31 +102,39 @@ def build_stealth_retriever(
     class StealthRetriever(BaseRetriever):
         model_config = {"arbitrary_types_allowed": True}
 
-        def _get_relevant_documents(self, query: str, *, run_manager=None):  # noqa: D401
-            docs = []
-            for hit in searxng_search(searxng_url, query, max_results):
-                url = hit["url"]
-                result = fetch(
-                    url,
-                    mode=mode,
-                    plain_fetch=plain_get,
-                    stealth_fetch=stealth_fetch,
-                    respect_robots=respect_robots,
-                    robots_ok=robots_ok,
+        def _process_hit(self, hit: dict):
+            """Fetch one search hit through the stealth path; no side effects."""
+            url = hit["url"]
+            result = fetch(
+                url,
+                mode=mode,
+                plain_fetch=plain_get,
+                stealth_fetch=stealth_fetch,
+                respect_robots=respect_robots,
+                robots_ok=robots_ok,
+            )
+            doc = None
+            if result.content:
+                doc = Document(
+                    page_content=_cap_content(
+                        _extract_text(result.content), max_chars
+                    ),
+                    metadata={"url": url, "title": hit.get("title", "")},
                 )
+            return result.evidence, doc
+
+        def _get_relevant_documents(self, query: str, *, run_manager=None):  # noqa: D401
+            hits = searxng_search(searxng_url, query, max_results)
+            outcomes = gather_hits(hits, self._process_hit)
+            docs = []
+            # Record and report in input order so Evidence sequences are stable.
+            for evidence, doc in outcomes:
                 if evidence_log is not None:
-                    evidence_log.add(result.evidence)
+                    evidence_log.add(evidence)
                 if on_event is not None:
-                    on_event(result.evidence)
-                if result.content:
-                    docs.append(
-                        Document(
-                            page_content=_cap_content(
-                                _extract_text(result.content), max_chars
-                            ),
-                            metadata={"url": url, "title": hit.get("title", "")},
-                        )
-                    )
+                    on_event(evidence)
+                if doc is not None:
+                    docs.append(doc)
             return docs
 
     return StealthRetriever()
