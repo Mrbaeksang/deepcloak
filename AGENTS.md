@@ -8,13 +8,14 @@ See @CONTEXT.md for the domain glossary — use its terms (Bot Wall, Stealth Fet
 
 - Thin standalone orchestrator. We own no research loop; we depend on `local-deep-research` (pinned `==`) and `cloakbrowser` via pip. Never vendor upstream code.
 - Every surface (CLI, MCP server, Claude skill) calls one core: `research_core.research(...)`. It installs the shim once, calls LDR, and attaches Evidence Records.
-- Deep modules — small, stable public interface, hidden internals, tested in isolation: `bot_wall_detector`, `evidence`, `fetch_router`, `config`. Keep their interfaces narrow.
+- Deep modules — small, stable public interface, hidden internals, tested in isolation: `bot_wall_detector`, `evidence`, `fetch_router`, `config`, `providers`. Keep their interfaces narrow.
 
 ## HOW — commands
 
 - Run research: `deepcloak "<query>" --depth quick|detailed|report`
 - First-time setup (downloads stealth Chromium): `deepcloak setup`
 - Start the MCP server: `deepcloak mcp`
+- List a provider's models: `deepcloak models [--provider X] [--base-url U]`
 - Test: `pytest` · Lint: `ruff check .`
 - While iterating, run a single test file, not the whole suite.
 
@@ -39,7 +40,7 @@ See @CONTEXT.md for the domain glossary — use its terms (Bot Wall, Stealth Fet
 
 ### Testing
 - Test external behavior through public interfaces, not internals.
-- Unit-test the four pure/deep modules with committed Bot Wall HTML fixtures. Smoke-test shim + core + CLI + MCP. Mirror `local-deep-research`'s fixture style.
+- Unit-test the pure/deep modules with committed fixtures (Bot Wall HTML for the detector; recorded provider JSON responses for `providers`). Smoke-test shim + core + CLI + MCP. Mirror `local-deep-research`'s fixture style.
 
 ## Agent skills
 

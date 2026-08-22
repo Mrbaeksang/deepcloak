@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from . import ldr_shim
-from .config import Settings, resolve
+from .config import Settings, load_config_file, resolve
 from .evidence import EvidenceLog
 
 __all__ = ["Result", "research"]
@@ -24,6 +24,20 @@ _LDR_FUNCTION = {
     "detailed": "detailed_research",
     "report": "generate_report",
 }
+
+
+def _warn(message: str) -> None:
+    import sys
+
+    print(f"⚠️  {message}", file=sys.stderr, flush=True)
+
+
+def _create_snapshot(overrides: dict) -> Any:
+    from local_deep_research.api.settings_utils import (  # type: ignore
+        create_settings_snapshot,
+    )
+
+    return create_settings_snapshot(overrides=overrides)
 
 
 @dataclass
@@ -69,19 +83,36 @@ def _run_ldr(
                     )
                 }
                 overrides["search.tool"] = "stealth"
-            except Exception:
-                pass
+            except Exception as exc:
+                _warn(
+                    f"SearXNG Stealth retriever unavailable — continuing without it: {exc}"
+                )
 
         try:
-            from local_deep_research.api.settings_utils import (  # type: ignore
-                create_settings_snapshot,
+            # Without this snapshot, search.snippets_only stays true upstream and
+            # no page ever routes through the stealth shim — say so loudly.
+            fn_kwargs["settings_snapshot"] = _create_snapshot(overrides)
+        except Exception as exc:
+            _warn(
+                f"could not build LDR settings snapshot ({exc}) — falling back to "
+                "environment variables; full-page fetch / Bot Wall Bypass may not apply"
             )
 
-            fn_kwargs["settings_snapshot"] = create_settings_snapshot(overrides=overrides)
-        except Exception:
-            pass
-
     fn = getattr(rf, _LDR_FUNCTION[settings.depth])
+    if on_event is not None:
+        import inspect
+
+        try:
+            params = inspect.signature(fn).parameters
+            supported = "progress_callback" in params or any(
+                p.kind is inspect.Parameter.VAR_KEYWORD for p in params.values()
+            )
+        except (TypeError, ValueError):
+            supported = False
+        if supported:
+            from .progress import make_phase_printer
+
+            fn_kwargs["progress_callback"] = make_phase_printer()
     result = fn(query, **fn_kwargs)
     # LDR functions return either a string or a dict with a summary/report field.
     if isinstance(result, Mapping):
@@ -100,7 +131,11 @@ def research(
     ``verbose=True`` streams live progress to stderr (used by the CLI)."""
     import sys
 
-    settings = resolve(cli or {}, env if env is not None else os.environ)
+    settings = resolve(
+        cli or {},
+        env if env is not None else os.environ,
+        file=load_config_file(),
+    )
     os.environ.update(settings.to_ldr_env())
 
     on_event = None
@@ -118,9 +153,13 @@ def research(
             proxy=settings.proxy,
             on_event=on_event,
         )
-    except Exception:
-        # LDR not importable yet / seam moved — proceed without stealth (degraded).
-        pass
+    except Exception as exc:
+        # LDR not importable yet / seam moved — proceed without Stealth Fetch,
+        # but never silently: a run without the shim cannot Bypass any Bot Wall.
+        _warn(
+            f"Stealth Fetch shim not installed ({exc}) — bot-walled pages "
+            "will NOT be bypassed this run (degraded mode)"
+        )
 
     report = _run_ldr(query, settings, evidence_log=evidence_log, on_event=on_event)
     badge = evidence_log.badge()

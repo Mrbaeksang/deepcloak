@@ -1,7 +1,7 @@
 """Tests for live progress formatting."""
 
 from deepcloak.evidence import EvidenceRecord
-from deepcloak.progress import format_event
+from deepcloak.progress import format_event, format_phase, make_phase_printer
 
 
 def _rec(**kw):
@@ -29,3 +29,21 @@ def test_format_escalation_failed():
 def test_format_uses_host_only():
     line = format_event(_rec(url="https://example.com/a/b/c?q=1"))
     assert "example.com" in line and "/a/b/c" not in line
+
+
+def test_format_phase_renders_description_and_percent():
+    assert "Searching" in format_phase({"status": "Searching sources", "percent": 30})
+    assert "30%" in format_phase({"status": "Searching sources", "percent": 30})
+
+
+def test_format_phase_tolerates_upstream_payload_variants():
+    assert "Analyzing" in format_phase({"message": "Analyzing", "progress": 45})
+    line = format_phase({})
+    assert isinstance(line, str) and line  # never crashes, always a usable line
+
+
+def test_phase_printer_writes_to_stderr(capsys):
+    printer = make_phase_printer()
+    printer("planning", 10, {"description": "Planning searches"})
+    err = capsys.readouterr().err
+    assert "Planning searches" in err and "10%" in err
