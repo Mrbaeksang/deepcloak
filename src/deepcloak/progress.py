@@ -17,7 +17,13 @@ from typing import Any
 
 from .evidence import EvidenceRecord
 
-__all__ = ["format_event", "format_phase", "make_phase_printer", "stderr_printer"]
+__all__ = [
+    "ProgressReporter",
+    "format_event",
+    "format_phase",
+    "make_phase_printer",
+    "stderr_printer",
+]
 
 
 def _host(url: str) -> str:
@@ -84,3 +90,63 @@ def make_phase_printer() -> Any:
         print(format_phase(merged), file=sys.stderr, flush=True)
 
     return printer
+
+
+class ProgressReporter:
+    """Verbose-mode sink for Evidence Records and research phases.
+
+    With ``rich`` installed it renders a live status line that follows the
+    research loop's phases; without it, plain stderr lines (exactly like the
+    pre-rich CLI). Callable with an EvidenceRecord — the shim and retriever
+    report events through ``reporter(rec)`` — and its ``phase`` method matches
+    LDR's ``progress_callback`` signature. Use as a context manager spanning
+    the research call so the status line starts/stops cleanly.
+    """
+
+    def __init__(self, stream: Any = None) -> None:
+        self.stream = stream or sys.stderr
+        try:
+            from rich.console import Console  # type: ignore[import-not-found]
+
+            self._console: Any = Console(file=self.stream, highlight=False)
+        except ImportError:
+            self._console = None
+        self._status: Any = None
+
+    def __enter__(self) -> ProgressReporter:
+        if self._console is not None:
+            self._status = self._console.status("🔎 researching…")
+            self._status.start()
+        return self
+
+    def __exit__(self, *exc: Any) -> bool:
+        if self._status is not None:
+            self._status.stop()
+            self._status = None
+        return False
+
+    def _write(self, text: str) -> None:
+        print(text, file=self.stream, flush=True)
+
+    def evidence_line(self, text: str) -> None:
+        if self._console is not None:
+            self._console.print(text)
+        else:
+            self._write(text)
+
+    def __call__(self, rec: EvidenceRecord) -> None:
+        """Receive one Evidence Record (the shim/retriever event seam)."""
+        self.evidence_line(format_event(rec))
+
+    def phase(self, status: Any = "", percent: Any = None, data: Any = None) -> None:
+        """Receive one research-phase callback (LDR's progress_callback seam)."""
+        merged: dict[str, Any] = {"status": status}
+        if isinstance(data, Mapping):
+            merged.update(data)
+        if percent is not None:
+            merged.setdefault("percent", percent)
+        line = format_phase(merged)
+        if self._status is not None:
+            self._status.update(line.strip())
+        else:
+            self.evidence_line(line)

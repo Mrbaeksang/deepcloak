@@ -6,6 +6,8 @@ import argparse
 import sys
 
 from . import __version__
+from .config import load_config_file
+from .picker import pick_provider_and_model
 from .providers import ProviderError, detect, get, list_models
 
 __all__ = ["main", "build_parser"]
@@ -92,6 +94,49 @@ def _run_models(argv: list[str]) -> int:
         return 1
 
 
+def _run_runs(argv: list[str]) -> int:
+    """`deepcloak runs` — list saved research runs, newest first."""
+    p = argparse.ArgumentParser(
+        prog="deepcloak runs",
+        description="List saved research runs from the local history.",
+    )
+    p.add_argument("--limit", type=int, default=25, help="how many to show")
+    args = p.parse_args(argv)
+
+    from .history import list_runs
+
+    for r in list_runs()[: args.limit]:
+        provider = r.get("provider") or "-"
+        model = r.get("model") or "-"
+        query = (r["query"] or "-")[:70]
+        print(f"{r['id']}  {provider}/{model}  {query}")
+    return 0
+
+
+def _run_show(argv: list[str]) -> int:
+    """`deepcloak show <id>` — print a saved run's report."""
+    import json
+
+    p = argparse.ArgumentParser(
+        prog="deepcloak show", description="Print a saved run's report."
+    )
+    p.add_argument("run_id", help="run id (unique prefix works)")
+    p.add_argument("--json", action="store_true", help="print meta+report+evidence as JSON")
+    args = p.parse_args(argv)
+
+    from .history import load_run
+
+    got = load_run(args.run_id)
+    if got is None:
+        print(f"error: no saved run matches {args.run_id!r}", file=sys.stderr)
+        return 1
+    if args.json:
+        print(json.dumps(got, ensure_ascii=False, indent=2))
+    else:
+        print(got["report"])
+    return 0
+
+
 def _cli_dict(args: argparse.Namespace) -> dict:
     keys = ("depth", "engine", "stealth", "respect_robots", "proxy",
             "provider", "model", "base_url", "searxng_url", "out")
@@ -114,6 +159,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if argv and argv[0] == "models":
         return _run_models(argv[1:])
+    if argv and argv[0] == "runs":
+        return _run_runs(argv[1:])
+    if argv and argv[0] == "show":
+        return _run_show(argv[1:])
 
     args = build_parser().parse_args(argv)
     if not args.query:
@@ -122,11 +171,47 @@ def main(argv: list[str] | None = None) -> int:
 
     from .research_core import research
 
+    cli_opts = _cli_dict(args)
+
+    # A human at a terminal with several credentials gets asked; scripts,
+    # pipes and MCP clients never do.
+    if (
+        sys.stdin.isatty()
+        and sys.stdout.isatty()
+        and not cli_opts.get("provider")
+        and not cli_opts.get("model")
+        and not load_config_file().get("provider")
+    ):
+        import os
+
+        picked = pick_provider_and_model(dict(os.environ))
+        if picked:
+            provider, model = picked
+            cli_opts["provider"] = provider
+            if model:
+                cli_opts["model"] = model
+
     try:
-        result = research(args.query, cli=_cli_dict(args), verbose=True)
+        result = research(args.query, cli=cli_opts, verbose=True)
     except Exception as exc:  # surface a clean message, not a traceback
         print(f"error: {exc}", file=sys.stderr)
         return 1
+
+    # Keep the run locally (report + Evidence Records) for `deepcloak runs/show`.
+    try:
+        from .history import save_run
+
+        s = result.settings
+        save_run(
+            query=args.query,
+            report=result.report,
+            evidence_json=result.evidence_json,
+            provider=s.provider,
+            model=s.model,
+            depth=s.depth,
+        )
+    except Exception as exc:
+        print(f"warning: could not save run history: {exc}", file=sys.stderr)
 
     if args.out:
         with open(args.out, "w", encoding="utf-8") as fh:

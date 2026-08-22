@@ -22,6 +22,7 @@ dependencies = [
 
 [project.optional-dependencies]
 mcp = ["mcp>=1.0"]
+rich = ["rich>=13"]
 dev = ["pytest>=8.0", "ruff>=0.6"]
 
 [project.scripts]

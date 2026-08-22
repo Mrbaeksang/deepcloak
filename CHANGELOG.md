@@ -6,6 +6,18 @@ All notable changes to DeepCloak are documented here. Format follows
 ## [Unreleased]
 
 ### Added
+- **Interactive picker** — with several LLM credentials in the environment and a real
+  terminal, `deepcloak "<query>"` asks which provider (and model, listed live) to use;
+  scripts, pipes and MCP clients are never prompted.
+- **Local run history** — every CLI run is saved under `~/.local/share/deepcloak/runs/`
+  (report + Evidence Records + metadata); browse with `deepcloak runs`, replay with
+  `deepcloak show <id>` (`--json` for everything). `$DEEPCLOAK_RUNS_DIR` relocates it.
+- **Optional rich rendering** — `pip install deepcloak[rich]` upgrades the progress
+  output to a live status line; plain stderr lines remain the fallback.
+- Retriever now fetches search hits **in parallel** while keeping Evidence Record
+  order stable — noticeably faster Deep Research on many-source queries.
+
+### Added
 - `deepcloak models [--provider X] [--base-url U]` — list a provider's models over its
   public API (OpenRouter, OpenAI, Anthropic, Gemini, Ollama, LM Studio, llama.cpp,
   any OpenAI-compatible endpoint). Also exposed as an MCP `list_models` tool.
