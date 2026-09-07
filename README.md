@@ -2,9 +2,9 @@
 
 <h1>🛡️ DeepCloak</h1>
 
-### The deep-research agent that reads the pages others can't.
+### Local-first research with explicit fetch decisions and evidence.
 
-**Cloudflare · Datadome · Turnstile · reCAPTCHA — it walks straight through them.**
+A CLI and MCP wrapper around local-deep-research and CloakBrowser. It retries selected failed fetches in a browser and records the result. Success depends on the source and its access controls.
 
 [![PyPI](https://img.shields.io/pypi/v/deepcloak?color=a855f7&label=pypi)](https://pypi.org/project/deepcloak/)
 [![CI](https://github.com/Mrbaeksang/deepcloak/actions/workflows/ci.yml/badge.svg)](https://github.com/Mrbaeksang/deepcloak/actions/workflows/ci.yml)
@@ -41,7 +41,7 @@ It's a thin, local-first orchestrator over two great projects: [`local-deep-rese
 
 The open web is quietly closing. More of the best writing now sits behind a bot check, and AI research agents — the tools we increasingly trust to read the web *for us* — go blind at exactly those doors, without ever saying so. A report that silently skips every walled source isn't neutral; it's wrong in a way you can't see.
 
-DeepCloak's stance is simple: **your agent should be able to read what a person with a browser can read** — and it should be honest about how it got there. So it Bypasses the wall when it has to, keeps everything local (no query or page leaves your machine), and prints an Evidence Record of every wall it crossed. Capability *and* transparency, MIT-licensed, no lock-in.
+DeepCloak's stance is simple: **your agent should be able to read what a person with a browser can read** — and it should be honest about how it got there. It attempts a Stealth Fetch when needed and prints an Evidence Record of the result. The process runs locally; search engines receive queries, source websites receive requests, and a configured cloud LLM receives research context. Choose a local LLM when that context must stay on the machine. Capability *and* transparency, MIT-licensed, no lock-in.
 
 ## ✨ Why it's different
 
