@@ -19,7 +19,7 @@ from typing import Any
 from .fetch_router import fetch
 from .stealth_downloader import plain_get, stealth_get
 
-__all__ = ["build_stealth_retriever", "searxng_search", "gather_hits"]
+__all__ = ["build_stealth_retriever", "searxng_search", "youcom_search", "gather_hits"]
 
 
 def gather_hits(hits: list, do_fetch: Callable, max_workers: int = 8) -> list:
@@ -50,6 +50,51 @@ def searxng_search(base_url: str, query: str, max_results: int = 8) -> list[dict
         url = item.get("url")
         if url:
             out.append({"url": url, "title": item.get("title", "")})
+    return out
+
+
+def youcom_search(api_key: str | None, query: str, max_results: int = 8) -> list[dict]:
+    """Query the You.com Search API and return [{url, title}] hits.
+
+    Works with or without an API key. Without a key the keyless free profile
+    is used (basic search only). With ``YDC_API_KEY`` the authenticated API
+    returns richer results with higher rate limits.
+    """
+    import requests
+
+    headers = {
+        "User-Agent": "deepcloak/0.1.0",
+        "Content-Type": "application/json",
+    }
+    if api_key:
+        headers["X-API-Key"] = api_key
+
+    # The You.com Search API accepts POST with a JSON body.
+    payload = {
+        "query": query,
+        "num_search_results": min(max_results, 20),
+    }
+    try:
+        r = requests.post(
+            "https://api.ydc-index.io/v1/search",
+            json=payload,
+            headers=headers,
+            timeout=20,
+        )
+        # 402 (x402 Payment Required) from the keyless path means the free
+        # quota is exhausted — fall back gracefully to an empty result set.
+        if r.status_code == 402:
+            return []
+        r.raise_for_status()
+    except requests.RequestException:
+        return []
+
+    data = r.json()
+    out: list[dict] = []
+    for hit in (data.get("hits") or [])[:max_results]:
+        url = hit.get("url")
+        if url:
+            out.append({"url": url, "title": hit.get("title", "")})
     return out
 
 
@@ -86,18 +131,25 @@ def build_stealth_retriever(
     mode: str = "auto",
     max_results: int = 8,
     max_chars: int = 2000,
+    search_fn: Callable | None = None,
     evidence_log: Any = None,
     on_event: Any = None,
     respect_robots: bool = False,
     robots_ok: Any = None,
     proxy: str | None = None,
 ):
-    """Construct a LangChain BaseRetriever backed by the stealth fetch path."""
+    """Construct a LangChain BaseRetriever backed by the stealth fetch path.
+
+    ``search_fn`` defaults to ``searxng_search`` bound to ``searxng_url``.
+    Pass a different callable (e.g. ``youcom_search``) to use an alternative
+    search backend while keeping the same stealth-fetch pipeline.
+    """
     from functools import partial
 
     from langchain_core.retrievers import BaseRetriever, Document  # type: ignore
 
     stealth_fetch = partial(stealth_get, proxy=proxy)
+    do_search = search_fn or (lambda q, m: searxng_search(searxng_url, q, m))
 
     class StealthRetriever(BaseRetriever):
         model_config = {"arbitrary_types_allowed": True}
@@ -124,7 +176,7 @@ def build_stealth_retriever(
             return result.evidence, doc
 
         def _get_relevant_documents(self, query: str, *, run_manager=None):  # noqa: D401
-            hits = searxng_search(searxng_url, query, max_results)
+            hits = do_search(query, max_results)
             outcomes = gather_hits(hits, self._process_hit)
             docs = []
             # Record and report in input order so Evidence sequences are stable.

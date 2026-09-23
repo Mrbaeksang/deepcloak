@@ -24,7 +24,7 @@ _KEYLESS_PROVIDERS = {name for name, s in PROVIDERS.items() if s.keyless}
 
 _VALID_STEALTH = {"auto", "always", "off"}
 _VALID_DEPTH = {"quick", "detailed", "report"}
-_VALID_ENGINE = {"duckduckgo", "searxng", "auto"}
+_VALID_ENGINE = {"duckduckgo", "searxng", "youcom", "auto"}
 
 # Which LDR settings key receives a custom base URL, per provider.
 _BASE_URL_SETTING = {
@@ -55,6 +55,7 @@ class Settings:
     out: str | None
     proxy: str | None
     searxng_url: str | None
+    youcom_api_key: str | None = None
     base_url: str | None = None  # for provider "openai-endpoint" (local OpenAI-compatible)
 
     def to_ldr_env(self) -> dict[str, str]:
@@ -127,6 +128,7 @@ def _validate(value: str, valid: set[str], label: str) -> str:
 _SETTING_KEYS = (
     "provider", "model", "depth", "engine", "stealth",
     "base_url", "searxng_url", "proxy", "out", "respect_robots",
+    "youcom_api_key",
 )
 _BOOL_KEYS = frozenset({"respect_robots"})
 _TRUTHY = {"1", "true", "yes", "on"}
@@ -196,6 +198,7 @@ def resolve(cli: Mapping, env: Mapping, file: Mapping | None = None) -> Settings
     searxng_url = src.get("searxng_url") or env.get(
         "LDR_SEARCH_ENGINE_WEB_SEARXNG_DEFAULT_PARAMS_INSTANCE_URL"
     )
+    youcom_api_key = src.get("youcom_api_key") or env.get("YDC_API_KEY")
 
     base_url = src.get("base_url") or env.get("LDR_LLM_OPENAI_ENDPOINT_URL")
     if provider == "openai-endpoint" and not base_url:
@@ -215,5 +218,6 @@ def resolve(cli: Mapping, env: Mapping, file: Mapping | None = None) -> Settings
         out=src.get("out"),
         proxy=src.get("proxy"),
         searxng_url=searxng_url,
+        youcom_api_key=youcom_api_key,
         base_url=base_url,
     )

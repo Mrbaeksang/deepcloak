@@ -4,6 +4,10 @@
       "command": "deepcloak",
       "args": ["mcp"],
       "env": {}
+    },
+    "you": {
+      "url": "https://api.you.com/mcp?profile=free",
+      "description": "Keyless You.com web search, URL content extraction, and cited synthesis via MCP."
     }
   }
 }

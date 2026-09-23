@@ -81,6 +81,8 @@ search (DuckDuckGo, no setup) ─▶ candidate URLs
 research loop (local-deep-research) ─▶ cited report + Evidence Records
 ```
 
+> **Search engines.** DuckDuckGo is the zero-setup default. Pass `--engine searxng` plus `--searxng-url` to use your own SearXNG instance. Pass `--engine youcom` to search via the You.com Search API (`YDC_API_KEY` env var for authenticated access; works keyless without it via the free MCP profile at `https://api.you.com/mcp?profile=free`).
+
 Stealth is heavy, so DeepCloak tries a cheap plain fetch first and only launches the stealth browser when it actually detects a Bot Wall (`--stealth auto`, the default). Use `--depth detailed`/`report` to fetch full pages where Bypasses happen.
 
 ## 🤖 Connect it to your agent (MCP)
@@ -108,7 +110,7 @@ Then your agent can call `deep_research` and read bot-walled sources directly. P
 | Flag | Default | Notes |
 | --- | --- | --- |
 | `--depth` | `detailed` | `quick` / `detailed` / `report` |
-| `--engine` | `duckduckgo` | `searxng` / `auto` |
+| `--engine` | `duckduckgo` | `searxng` / `youcom` / `auto` |
 | `--stealth` | `auto` | `always` / `off` |
 | `--provider` / `--model` | auto-detected | `OPENAI_API_KEY` → `ANTHROPIC_API_KEY` → `GEMINI_API_KEY` → `OPENROUTER_API_KEY`; or `ollama` / `lmstudio` / `llamacpp` / `openai-endpoint` (`--base-url`) |
 | `--respect-robots` | off | honor robots.txt |
@@ -125,8 +127,8 @@ DeepCloak Bypasses bot-detection. **You are responsible for having the right to 
 
 ## 🗺️ Roadmap
 
+- ~~More search backends beyond DuckDuckGo / SearXNG~~ ✅ You.com (`--engine youcom`)
 - More Bot Wall signatures + smarter Escalation heuristics
-- More search backends beyond DuckDuckGo / SearXNG
 - Cache Bypassed pages across runs
 - Richer Evidence Record export (HTML / JSON schema)
 

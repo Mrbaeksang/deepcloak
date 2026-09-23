@@ -146,6 +146,34 @@ def test_openai_endpoint_base_url_from_env():
     assert s.base_url == "http://localhost:8080/v1"
 
 
+def test_youcom_engine_is_valid_choice():
+    s = resolve(cli={"engine": "youcom"}, env={"OPENAI_API_KEY": "x"})
+    assert s.search_engine == "youcom"
+
+
+def test_youcom_reads_api_key_from_env():
+    s = resolve(
+        cli={"engine": "youcom"},
+        env={"OPENAI_API_KEY": "x", "YDC_API_KEY": "you-key"},
+    )
+    assert s.search_engine == "youcom"
+    assert s.youcom_api_key == "you-key"
+
+
+def test_youcom_works_keyless_when_no_api_key():
+    s = resolve(cli={"engine": "youcom"}, env={"OPENAI_API_KEY": "x"})
+    assert s.search_engine == "youcom"
+    assert s.youcom_api_key is None  # keyless mode
+
+
+def test_youcom_engine_from_env():
+    s = resolve(
+        cli={},
+        env={"OPENAI_API_KEY": "x", "DEEPCLOAK_ENGINE": "youcom"},
+    )
+    assert s.search_engine == "youcom"
+
+
 def test_config_file_fills_gaps_but_never_beats_flags_or_env():
     file = {"depth": "report", "stealth": "off", "model": "from-file"}
 
