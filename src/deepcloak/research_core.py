@@ -88,6 +88,32 @@ def _run_ldr(
                     f"SearXNG Stealth retriever unavailable — continuing without it: {exc}"
                 )
 
+        if settings.search_engine == "youcom":
+            try:
+                from functools import partial
+
+                from .retriever import build_stealth_retriever, youcom_search
+
+                fn_kwargs["retrievers"] = {
+                    "stealth": build_stealth_retriever(
+                        searxng_url="",
+                        mode=settings.stealth_mode,
+                        evidence_log=evidence_log,
+                        on_event=on_event,
+                        respect_robots=settings.respect_robots,
+                        proxy=settings.proxy,
+                        search_fn=partial(
+                            youcom_search, settings.youcom_api_key
+                        ),
+                    )
+                }
+                overrides["search.tool"] = "stealth"
+            except Exception as exc:
+                _warn(
+                    f"You.com Stealth retriever unavailable — "
+                    f"continuing without it: {exc}"
+                )
+
         try:
             # Without this snapshot, search.snippets_only stays true upstream and
             # no page ever routes through the stealth shim — say so loudly.
