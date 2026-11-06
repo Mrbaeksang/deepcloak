@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   description:
     "A local-first deep research agent that bypasses Cloudflare, Datadome, Turnstile & reCAPTCHA to read the whole web.",
   metadataBase: new URL("https://deepcloak.vercel.app"),
+  alternates: { canonical: "/" },
   openGraph: {
     title: "DeepCloak — deep research that reads bot-walled pages",
     description: "Deep research that reads pages other tools can't — even behind a Bot Wall.",
