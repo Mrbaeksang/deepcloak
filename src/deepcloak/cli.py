@@ -16,7 +16,7 @@ __all__ = ["main", "build_parser"]
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="deepcloak",
-        description="Deep research that reads bot-walled pages.",
+        description="Local-first research with explicit fetch decisions and evidence.",
         epilog="Subcommands: 'deepcloak setup' (install stealth browser), "
         "'deepcloak mcp' (run MCP server), 'deepcloak models' (list a provider's models).",
     )
