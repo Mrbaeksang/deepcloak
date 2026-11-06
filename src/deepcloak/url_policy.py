@@ -48,7 +48,14 @@ def _is_public(address: str) -> bool:
 
 
 def blocked_reason(url: str, resolve: Resolver = _resolve) -> str | None:
-    """Why ``url`` must not be fetched, or None if it may be."""
+    """Why ``url`` must not be fetched, or None if it may be. Never raises on bad input."""
+    try:
+        return _check(url, resolve)
+    except ValueError:  # Includes UnicodeError from an over-long or empty DNS label.
+        return "invalid URL"
+
+
+def _check(url: str, resolve: Resolver) -> str | None:
     if _AMBIGUOUS_URL.search(url):
         return "URL contains ambiguous characters"
     parts = urlsplit(url)
