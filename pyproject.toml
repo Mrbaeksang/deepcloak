@@ -5,12 +5,12 @@ build-backend = "hatchling.build"
 [project]
 name = "deepcloak"
 version = "0.1.0"
-description = "Local-first deep research agent that reads the whole web — even pages behind Cloudflare, Datadome, Turnstile & reCAPTCHA."
+description = "Local-first research tool with explicit fetch decisions, source evidence, and cited reports. CLI and MCP interfaces."
 readme = "README.md"
 requires-python = ">=3.12,<3.15"
 license = "MIT"
 authors = [{ name = "Mrbaeksang", email = "contact@baeksang.dev" }]
-keywords = ["deep-research", "web-scraping", "stealth", "anti-bot", "cloudflare", "mcp", "llm", "ai-agent", "rag", "local-first"]
+keywords = ["deep-research", "research", "citations", "evidence", "mcp", "llm", "ai-agent", "rag", "local-first"]
 
 # ADR-0001: local-deep-research is pinned with == because the stealth shim
 # depends on its internal symbols.
