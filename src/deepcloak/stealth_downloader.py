@@ -12,6 +12,7 @@ from collections.abc import Callable
 from typing import Any
 from urllib.parse import urljoin
 
+from . import __version__
 from .url_policy import BlockedTarget
 
 __all__ = ["plain_get", "stealth_get"]
@@ -19,10 +20,7 @@ __all__ = ["plain_get", "stealth_get"]
 TargetCheck = Callable[[str], "str | None"]
 _MAX_REDIRECTS = 5
 
-_UA = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/126.0 Safari/537.36"
-)
+_UA = f"DeepCloak/{__version__} (+https://github.com/Mrbaeksang/deepcloak)"
 
 
 def plain_get(url: str, timeout: int = 20, target_check: TargetCheck | None = None) -> Any:

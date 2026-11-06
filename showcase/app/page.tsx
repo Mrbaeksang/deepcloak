@@ -64,8 +64,8 @@ export default function Page() {
           </motion.div>
           <h1 className="mt-5 text-5xl font-semibold tracking-tight sm:text-7xl">DeepCloak</h1>
           <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted">
-            Deep research that reads the <span className="text-cyber">whole</span> web — even pages
-            behind <span className="text-cloak">Cloudflare, Datadome, Turnstile &amp; reCAPTCHA</span>.
+            Local-first research with <span className="text-cyber">explicit fetch decisions</span>,
+            source evidence, and <span className="text-cloak">cited reports</span>.
           </p>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
             <a
@@ -102,9 +102,8 @@ export default function Page() {
           <video className="w-full" src="/demo.mp4" autoPlay muted loop playsInline />
         </div>
         <p className="mx-auto mt-3 max-w-xl text-sm text-muted">
-          An unedited screen recording — DeepCloak running against a local LLM (Qwen) + SearXNG,
-          Escalating to a Stealth Fetch on each Bot Wall, Bypassing it, then writing a cited report
-          ending with the 🛡️ Bypassed badge.
+          An unedited screen recording of DeepCloak 0.1.0 with a local LLM (Qwen) + SearXNG. Results
+          vary by run and by source; this run predates the current Bypass re-check.
         </p>
         <a
           href={YOUTUBE}
@@ -152,9 +151,9 @@ export default function Page() {
       <Section className="text-center">
         <div className="grid grid-cols-3 gap-3 sm:gap-4">
           {[
-            { n: summary.bypassed, label: "Bot Walls bypassed", c: "text-cyber" },
-            { n: summary.total, label: "sources fetched", c: "text-white" },
-            { n: `${Math.round(turnstileMs / 100) / 10}s`, label: "to clear Turnstile", c: "text-cloak" },
+            { n: summary.bypassed, label: "Bypasses in this recorded run", c: "text-cyber" },
+            { n: summary.total, label: "sources in this run", c: "text-white" },
+            { n: `${Math.round(turnstileMs / 100) / 10}s`, label: "first recorded Bypass", c: "text-cloak" },
           ].map((s, i) => (
             <motion.div
               key={i}
@@ -177,8 +176,8 @@ export default function Page() {
           <Eyebrow>Evidence Record</Eyebrow>
           <h2 className="mt-3 text-3xl font-semibold">Every fetch, on the record</h2>
           <p className="mx-auto mt-2 max-w-lg text-sm text-muted">
-            Plain fetch first; escalate to a stealth Bypass only when a Bot Wall is detected. Open
-            pages stay fast.
+            Plain fetch first; a browser retry only when a Bot Wall is detected. Every outcome is
+            recorded, including failures and skips.
           </p>
         </div>
         <div className="mt-9 flex flex-col gap-3">

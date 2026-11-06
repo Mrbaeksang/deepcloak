@@ -82,9 +82,9 @@ def test_stealth_mode_override():
     assert s.stealth_mode == "always"
 
 
-def test_respect_robots_defaults_off():
+def test_robots_are_honored_by_default():
     s = resolve(cli={}, env={"OPENAI_API_KEY": "x"})
-    assert s.respect_robots is False
+    assert s.respect_robots is True
 
 
 def test_to_ldr_env_maps_provider_model_and_key():
@@ -171,14 +171,12 @@ def test_provider_in_config_file_disables_autodetection():
     assert s.api_key is None
 
 
-def test_respect_robots_accepted_from_env_and_file():
-    s = resolve(
-        cli={},
-        env={"OPENAI_API_KEY": "x", "DEEPCLOAK_RESPECT_ROBOTS": "true"},
-    )
-    assert s.respect_robots is True
-    s = resolve(cli={}, env={"OPENAI_API_KEY": "x"}, file={"respect_robots": True})
-    assert s.respect_robots is True
+def test_ignore_robots_accepted_from_cli_env_and_file():
+    env = {"OPENAI_API_KEY": "x"}
+    assert resolve(cli={"ignore_robots": True}, env=env).respect_robots is False
+    assert resolve(cli={}, env={**env, "DEEPCLOAK_IGNORE_ROBOTS": "1"}).respect_robots is False
+    assert resolve(cli={}, env=env, file={"ignore_robots": True}).respect_robots is False
+    assert resolve(cli={}, env=env, file={"ignore_robots": "false"}).respect_robots is True
 
 
 def test_load_config_file_reads_toml_and_ignores_unknown_keys(tmp_path):

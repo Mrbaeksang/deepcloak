@@ -2,7 +2,7 @@
 
 <h1>🛡️ DeepCloak</h1>
 
-### 남들은 못 읽는 페이지까지 읽는 딥리서치 에이전트.
+### 가져오기 결정과 근거를 남기는 로컬 우선 리서치 도구.
 
 **Cloudflare · Datadome · Turnstile · reCAPTCHA — 그냥 통과해서 본문을 가져옵니다.**
 
@@ -21,7 +21,7 @@
 
 ### [▶ 라이브 데모 — deepcloak.vercel.app](https://deepcloak.vercel.app)  ·  [▶ 유튜브로 보기](https://youtu.be/p5ompjDLzaI)
 
-[![DeepCloak 실행: Cloudflare Turnstile 감지 → 에스컬레이트 → 우회 → 인용 리포트 작성](docs/media/demo.gif)](https://youtu.be/p5ompjDLzaI)
+[![DeepCloak 실행 녹화: Bot Wall 감지, 브라우저 재시도, 인용과 Evidence Record가 있는 리포트 작성](docs/media/demo.gif)](https://youtu.be/p5ompjDLzaI)
 
 </div>
 
@@ -29,31 +29,31 @@
 
 ## 문제
 
-리서치 도구에 질문을 던져요. 근데 좋은 소스 절반은 **봇 차단(Bot Wall)** 뒤에 있어요 — Cloudflare, Datadome, Turnstile, reCAPTCHA. 다른 도구들은 `403` 받고 그 페이지를 조용히 버린 뒤 더 얇은 리포트를 줍니다. **뭘 놓쳤는지도 못 알려줘요.**
+리서치 도구에 질문을 합니다. 일부 소스는 Cloudflare, DataDome 챌린지 같은 **봇 차단(Bot Wall)** 뒤에 있습니다. `403`을 받은 도구는 그 페이지를 버리고, 무엇을 놓쳤는지 말하지 않은 채 더 얇은 리포트를 줄 수 있습니다.
 
 ## DeepCloak이 하는 일
 
-plain fetch가 봇 차단에 막히면, 그 URL만 **Stealth Fetch로 에스컬레이트**해 벽을 **Bypass(우회)** 하고, 다른 에이전트가 포기한 본문을 회수합니다. 그리고 리포트 끝에 **몇 개의 벽을 뚫었는지** 정확히 알려줍니다.
+DeepCloak은 이 결정을 드러냅니다. plain fetch가 봇 차단에 막히면 그 URL을 브라우저의 **Stealth Fetch로 에스컬레이트**합니다. 돌아온 내용을 다시 검사해서, 더 이상 챌린지 페이지가 아닐 때만 **Bypass**로 기록합니다. 리포트 끝에 그 수를 알려주고, URL마다 실패와 건너뜀까지 **Evidence Record**로 남깁니다. 성공 여부는 소스와 접근 제어에 달려 있습니다.
 
 [`local-deep-research`](https://github.com/LearningCircuit/local-deep-research)(리서치 루프) + [`CloakBrowser`](https://github.com/CloakHQ/CloakBrowser)(스텔스 브라우저) 위의 얇은 로컬 우선 오케스트레이터입니다. **CLI · MCP 서버 · Claude 스킬**로 사용. MIT.
 
 ## 🌑 왜 만들었나
 
-열린 웹이 조용히 닫히고 있어요. 좋은 글일수록 봇 체크 뒤로 들어가고, 우리가 점점 믿고 맡기는 AI 리서치 에이전트는 **바로 그 문 앞에서 눈이 멀어요 — 그것도 말없이.** 막힌 소스를 조용히 건너뛴 리포트는 중립이 아니라, 네가 알 수 없는 방식으로 틀린 거예요.
+봇 체크 뒤에 있는 글이 늘고 있고, 리서치 에이전트는 말없이 그 글을 놓칠 수 있습니다. 소스를 조용히 건너뛴 리포트는 알아챌 수 없는 방식으로 틀린 리포트입니다.
 
-DeepCloak의 입장은 단순해요: **브라우저 든 사람이 읽을 수 있는 건 네 에이전트도 읽을 수 있어야 한다** — 그리고 어떻게 읽었는지 정직해야 한다. 그래서 필요하면 벽을 Bypass하고, 전부 로컬에서 처리하고(쿼리·페이지 안 나감), 넘은 벽을 Evidence Record로 다 보여줘요. 능력 *과* 투명성, MIT, 락인 없음.
+DeepCloak의 입장은 단순합니다: **리서치 도구는 근거를 보여줘야 합니다.** 기본으로 `robots.txt`를 지키고, 일반 요청에서 자신을 밝히고, 필요할 때만 Stealth Fetch를 시도하고, 결과를 Evidence Record로 출력합니다. 프로세스는 로컬에서 돌지만, 검색 엔진은 쿼리를, 원본 사이트는 요청을, 설정한 클라우드 LLM은 리서치 맥락을 받습니다. 맥락을 PC 밖으로 내보내지 않으려면 로컬 LLM을 쓰세요.
 
 ## ✨ 뭐가 다른가
 
-|  | 일반 딥리서치 | **DeepCloak** |
+|  | 근거 기록이 없는 도구 | **DeepCloak** |
 | --- | :---: | :---: |
 | 열린 웹 읽기 | ✅ | ✅ |
-| Cloudflare/Datadome/Turnstile/reCAPTCHA 페이지 | ❌ *조용히 버림* | ✅ **Bypass** |
-| 어떤 소스가 막혔는지 알려줌 | ❌ | ✅ Evidence Record |
+| 봇 차단 뒤의 페이지 | 조용히 버려지는 경우가 많음 | 브라우저로 재시도, 결과 기록 |
+| 어떤 소스가 막혔고, 건너뛰었고, 실패했는지 알려줌 | ❌ | ✅ Evidence Record |
 | 로컬 우선 (API 키 불필요) | ✅ | ✅ |
 | 열린 페이지는 빠르게 | — | ✅ *plain 우선, 필요할 때만 스텔스* |
 
-> **라이브 검증 — 목업 아님.** 위 영상은 실제 `deepcloak` 런을 `ffmpeg`로 캡처한 **편집 없는 화면 녹화**(합성 X) — **로컬 LLM(Qwen) + SearXNG, API 키 없음**. Bot Wall마다 Escalate해서 한 번에 **Cloudflare/Turnstile 벽 8개 Bypass**하고 인용 리포트 작성. 전체 클립: [`docs/media/demo-real.mp4`](docs/media/demo-real.mp4), 원본 asciinema 세션도 [`docs/media/demo.cast`](docs/media/demo.cast)에 보관. 열린 웹이 매번 달라서 벽 개수도 런마다 다름(8~20).
+> **실행 녹화.** 위 영상은 `deepcloak` 0.1.0을 **로컬 LLM(Qwen) + SearXNG, API 키 없이** 실행한 **편집 없는 화면 녹화**입니다. 이 실행에서 Cloudflare/Turnstile Bypass 8건이 보고됐습니다. 현재의 재검사가 들어가기 전 기록이고, 결과는 실행과 소스마다 다릅니다. 전체 클립: [`docs/media/demo-real.mp4`](docs/media/demo-real.mp4), 원본 세션: [`docs/media/demo.cast`](docs/media/demo.cast). 그 밖의 업체별 성공은 주장하지 않습니다.
 
 ## 🚀 빠른 시작
 
@@ -61,7 +61,7 @@ DeepCloak의 입장은 단순해요: **브라우저 든 사람이 읽을 수 있
 pip install deepcloak
 deepcloak setup                       # 1회: 스텔스 브라우저 내려받기
 export OPENAI_API_KEY=...             # 또는 ANTHROPIC_API_KEY / GEMINI_API_KEY — 또는 --provider ollama
-deepcloak "Cloudflare Turnstile은 봇을 어떻게 감지하나?" --depth detailed --out report.md
+deepcloak "웹사이트는 봇을 어떻게 감지할까?" --depth detailed --out report.md
 ```
 
 인용 포함 `report.md` (끝에 `🛡️ Bypassed N bot-walled sources` 섹션) + `report.md.evidence.json` 사이드카가 생깁니다.
@@ -111,7 +111,7 @@ args = ["mcp"]
 | `--engine` | `duckduckgo` | `searxng` / `auto` |
 | `--stealth` | `auto` | `always` / `off` |
 | `--provider` / `--model` | 자동감지 | `OPENAI_API_KEY` → `ANTHROPIC_API_KEY` → `GEMINI_API_KEY` → `OPENROUTER_API_KEY`; 또는 `ollama` / `lmstudio` / `llamacpp` / `openai-endpoint` (`--base-url`) |
-| `--respect-robots` | 끔 | robots.txt 존중 |
+| `--ignore-robots` | 끔 | robots.txt가 금지해도 가져옴. Evidence Record에 기록됨 |
 | `--allow-private-urls` | off | localhost와 사설 네트워크 주소 허용 (기본은 차단) |
 | `--proxy` | — | Stealth Fetch용 SOCKS5 |
 | `--json` | 끔 | 결과 전체(리포트 + Evidence Record + 설정)를 JSON으로 출력 |
@@ -120,7 +120,7 @@ args = ["mcp"]
 
 ## ⚠️ 책임 있는 사용
 
-DeepCloak은 봇 감지를 Bypass합니다. **가져오는 콘텐츠에 접근할 권리는 너의 책임입니다.** robots.txt는 **기본 무시**되며, `--respect-robots`로 존중할 수 있어요 ([ADR-0002](docs/adr/0002-ignore-robots-by-default.md)). 사이트 약관·법을 어기는 데 쓰지 마세요.
+DeepCloak은 막힌 페이지를 스텔스 브라우저로 재시도할 수 있습니다. **가져오는 콘텐츠에 접근할 권리는 사용자의 책임입니다.** robots.txt는 **기본으로 지키며**, `--ignore-robots`로 무시할 수 있습니다 ([ADR-0003](docs/adr/0003-honor-robots-by-default.md)). 일반 요청은 DeepCloak임을 밝히지만 브라우저 재시도는 그렇지 않습니다. 사이트 약관이나 법을 어기는 데 쓰지 마세요.
 
 ## 🗺️ 로드맵
 

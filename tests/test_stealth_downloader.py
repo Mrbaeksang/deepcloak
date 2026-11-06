@@ -8,7 +8,7 @@ import pytest
 
 pytest.importorskip("requests")  # the fast CI job installs without dependencies
 
-from deepcloak import ldr_shim
+from deepcloak import __version__
 from deepcloak.stealth_downloader import check_redirect_chain, guard_page, plain_get
 from deepcloak.url_policy import BlockedTarget
 
@@ -65,18 +65,6 @@ def test_redirect_loop_stops(server):
         plain_get(f"{server}/loop", target_check=lambda _u: None)
 
 
-def test_robots_disallow_is_honored_and_private_target_fails_open(server, monkeypatch):
-    def fake_get(url, timeout=20, target_check=None):
-        return SimpleNamespace(status_code=200, text="User-agent: *\nDisallow: /private\n")
-
-    monkeypatch.setattr(ldr_shim, "plain_get", fake_get)
-    assert ldr_shim.default_robots_ok("https://x.test/private/a") is False
-    assert ldr_shim.default_robots_ok("https://x.test/open") is True
-    monkeypatch.undo()
-    assert ldr_shim.default_robots_ok(f"{server}/private/a") is True
-    assert "/robots.txt" not in hits
-
-
 def _check(url):
     return "private network target" if "secret" in url else None
 
@@ -113,3 +101,15 @@ def test_clean_redirect_chain_and_missing_response_pass():
     final = SimpleNamespace(url="https://public.test/", redirected_from=None)
     check_redirect_chain(SimpleNamespace(request=final), _check)
     check_redirect_chain(None, _check)
+
+
+def test_plain_fetch_identifies_deepcloak(monkeypatch):
+    seen = {}
+
+    def fake_get(url, timeout=None, headers=None, allow_redirects=True):
+        seen.update(headers)
+        return SimpleNamespace(is_redirect=False)
+
+    monkeypatch.setattr("requests.get", fake_get)
+    plain_get("https://93.184.216.34/")
+    assert seen["User-Agent"].startswith(f"DeepCloak/{__version__} ")

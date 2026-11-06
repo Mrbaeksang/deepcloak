@@ -1,3 +1,3 @@
-"""DeepCloak — local-first deep research that reads bot-walled pages."""
+"""DeepCloak — local-first research with explicit fetch decisions and evidence."""
 
 __version__ = "0.1.0"

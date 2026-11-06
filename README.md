@@ -21,7 +21,7 @@ A CLI and MCP wrapper around local-deep-research and CloakBrowser. It retries se
 
 ### [▶ Live demo — deepcloak.vercel.app](https://deepcloak.vercel.app)  ·  [▶ Watch on YouTube](https://youtu.be/p5ompjDLzaI)
 
-[![DeepCloak running: it detects a Cloudflare Turnstile, escalates, and bypasses it — then writes a cited report](docs/media/demo.gif)](https://youtu.be/p5ompjDLzaI)
+[![A recorded DeepCloak run: it detects a Bot Wall, retries in a browser, and writes a cited report with Evidence Records](docs/media/demo.gif)](https://youtu.be/p5ompjDLzaI)
 
 </div>
 
@@ -29,31 +29,31 @@ A CLI and MCP wrapper around local-deep-research and CloakBrowser. It retries se
 
 ## The problem
 
-You ask a research tool a question. Half the best sources sit behind a **Bot Wall** — Cloudflare, Datadome, a Turnstile, a reCAPTCHA. Every other tool gets a `403`, silently drops those pages, and hands you a thinner report. **You never even learn what it missed.**
+You ask a research tool a question. Some sources sit behind a **Bot Wall**, such as a Cloudflare or DataDome challenge. A tool that gets a `403` may drop those pages and hand you a thinner report without saying what it missed.
 
 ## What DeepCloak does
 
-When a plain fetch hits a Bot Wall, DeepCloak **Escalates** that one URL to a **Stealth Fetch** and **Bypasses** the wall — recovering the content other agents abandon. Then it tells you, at the bottom of every report, exactly how many walls it broke through.
+DeepCloak makes those decisions visible. When a plain fetch hits a Bot Wall, it **Escalates** that URL to a **Stealth Fetch** in a browser. It re-checks what comes back, and records a **Bypass** only if the page is no longer a challenge. Every report ends with the count, and every URL gets an **Evidence Record** saying what happened, including failures and skips. Success depends on the source and its access controls.
 
 It's a thin, local-first orchestrator over two great projects: [`local-deep-research`](https://github.com/LearningCircuit/local-deep-research) (the research loop) and [`CloakBrowser`](https://github.com/CloakHQ/CloakBrowser) (the stealth browser). Use it as a **CLI**, an **MCP server**, or a **Claude skill**. MIT.
 
 ## 🌑 Why we built this
 
-The open web is quietly closing. More of the best writing now sits behind a bot check, and AI research agents — the tools we increasingly trust to read the web *for us* — go blind at exactly those doors, without ever saying so. A report that silently skips every walled source isn't neutral; it's wrong in a way you can't see.
+More writing now sits behind a bot check, and research agents can miss it without saying so. A report that silently skips sources is wrong in a way you can't see.
 
-DeepCloak's stance is simple: **your agent should be able to read what a person with a browser can read** — and it should be honest about how it got there. It attempts a Stealth Fetch when needed and prints an Evidence Record of the result. The process runs locally; search engines receive queries, source websites receive requests, and a configured cloud LLM receives research context. Choose a local LLM when that context must stay on the machine. Capability *and* transparency, MIT-licensed, no lock-in.
+DeepCloak's stance is simple: **a research tool should show its evidence.** It honors `robots.txt` by default, identifies itself on plain requests, attempts a Stealth Fetch only when one is needed, and prints an Evidence Record of the result. The process runs locally; search engines receive queries, source websites receive requests, and a configured cloud LLM receives research context. Choose a local LLM when that context must stay on the machine.
 
 ## ✨ Why it's different
 
-|  | Plain deep research | **DeepCloak** |
+|  | Without an evidence trail | **DeepCloak** |
 | --- | :---: | :---: |
 | Reads the open web | ✅ | ✅ |
-| Reads Cloudflare / Datadome / Turnstile / reCAPTCHA pages | ❌ *dropped silently* | ✅ **Bypassed** |
-| Tells you which sources were walled | ❌ | ✅ Evidence Record |
+| A page behind a Bot Wall | often dropped silently | retried in a browser, result recorded |
+| Tells you which sources were walled, skipped or failed | ❌ | ✅ Evidence Record |
 | Local-first (no API key required) | ✅ | ✅ |
 | Fast on open pages | — | ✅ *plain-first, stealth only when needed* |
 
-> **Verified live — not mocked.** The clip above is an **unedited screen recording** (captured with `ffmpeg`, no compositing) of a real `deepcloak` run against a **local LLM (Qwen) + SearXNG — no API key**. It Escalates on each Bot Wall and **Bypasses 8 Cloudflare/Turnstile walls** in one pass, then writes a cited report. Full clip: [`docs/media/demo-real.mp4`](docs/media/demo-real.mp4); a raw asciinema session is also kept at [`docs/media/demo.cast`](docs/media/demo.cast). Wall counts vary per run (8–20) because the open web does.
+> **Recorded run.** The clip above is an **unedited screen recording** of `deepcloak` 0.1.0 with a **local LLM (Qwen) + SearXNG, no API key**. In that run it reported 8 Cloudflare/Turnstile Bypasses. It predates the current re-check, and results vary by run and by source. Full clip: [`docs/media/demo-real.mp4`](docs/media/demo-real.mp4); raw session: [`docs/media/demo.cast`](docs/media/demo.cast). No other per-vendor success is claimed here.
 
 ## 🚀 Quickstart
 
@@ -61,10 +61,10 @@ DeepCloak's stance is simple: **your agent should be able to read what a person 
 pip install deepcloak
 deepcloak setup                       # one-time: downloads the stealth browser
 export OPENAI_API_KEY=...             # or ANTHROPIC_API_KEY / GEMINI_API_KEY — or --provider ollama
-deepcloak "How does Cloudflare Turnstile detect bots?" --depth detailed --out report.md
+deepcloak "How do websites detect bots?" --depth detailed --out report.md
 ```
 
-You get a cited `report.md` ending with a `🛡️ Bypassed N bot-walled sources` section, plus a `report.md.evidence.json` sidecar.
+You get a cited `report.md`, plus a `report.md.evidence.json` sidecar. When a Stealth Fetch succeeded, the report ends with a `🛡️ Bypassed N bot-walled sources` section.
 
 ## 🧠 How it works
 
@@ -81,7 +81,7 @@ search (DuckDuckGo, no setup) ─▶ candidate URLs
 research loop (local-deep-research) ─▶ cited report + Evidence Records
 ```
 
-Stealth is heavy, so DeepCloak tries a cheap plain fetch first and only launches the stealth browser when it actually detects a Bot Wall (`--stealth auto`, the default). Use `--depth detailed`/`report` to fetch full pages where Bypasses happen.
+Stealth is heavy, so DeepCloak tries a cheap plain fetch first and only launches the browser when it detects a Bot Wall (`--stealth auto`, the default). Use `--depth detailed`/`report` to fetch full pages.
 
 ## 🤖 Connect it to your agent (MCP)
 
@@ -111,7 +111,7 @@ Then your agent can call `deep_research` and read bot-walled sources directly. P
 | `--engine` | `duckduckgo` | `searxng` / `auto` |
 | `--stealth` | `auto` | `always` / `off` |
 | `--provider` / `--model` | auto-detected | `OPENAI_API_KEY` → `ANTHROPIC_API_KEY` → `GEMINI_API_KEY` → `OPENROUTER_API_KEY`; or `ollama` / `lmstudio` / `llamacpp` / `openai-endpoint` (`--base-url`) |
-| `--respect-robots` | off | honor robots.txt |
+| `--ignore-robots` | off | fetch even when robots.txt disallows it; recorded in each Evidence Record |
 | `--allow-private-urls` | off | allow localhost and private network addresses (blocked by default) |
 | `--proxy` | — | SOCKS5 for the Stealth Fetch |
 | `--json` | off | print the full result (report + Evidence Records + settings) as JSON |
@@ -122,13 +122,13 @@ Then your agent can call `deep_research` and read bot-walled sources directly. P
 
 ## ⚠️ Responsible use
 
-DeepCloak Bypasses bot-detection. **You are responsible for having the right to access whatever you fetch.** robots.txt is **ignored by default**; pass `--respect-robots` to honor it ([ADR-0002](docs/adr/0002-ignore-robots-by-default.md)). Don't use it to violate sites' terms or the law.
+DeepCloak can retry a blocked page in a stealth browser. **You are responsible for having the right to access whatever you fetch.** robots.txt is **honored by default**, and `--ignore-robots` overrides it ([ADR-0003](docs/adr/0003-honor-robots-by-default.md)). Plain requests identify themselves as DeepCloak; the browser retry does not. Don't use it to violate sites' terms or the law.
 
 ## 🗺️ Roadmap
 
-- More Bot Wall signatures + smarter Escalation heuristics
+- Fewer false verdicts in Bot Wall detection and the Bypass re-check
 - More search backends beyond DuckDuckGo / SearXNG
-- Cache Bypassed pages across runs
+- Cache fetched pages across runs
 - Richer Evidence Record export (HTML / JSON schema)
 
 Ideas welcome — start a [Discussion](https://github.com/Mrbaeksang/deepcloak/discussions) or open a [feature request](https://github.com/Mrbaeksang/deepcloak/issues/new/choose).
@@ -143,7 +143,7 @@ MIT — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
 <div align="center">
 
-**If DeepCloak read a page your last tool gave up on, drop a ⭐ — it helps others find it.**
+**If DeepCloak's evidence helped your research, drop a ⭐. It helps others find it.**
 
 Built and maintained by **[Sanghyeon Baek (백상현 · @Mrbaeksang)](https://baeksang.dev)** · [baeksang.dev](https://baeksang.dev) · [contact@baeksang.dev](mailto:contact@baeksang.dev)
 

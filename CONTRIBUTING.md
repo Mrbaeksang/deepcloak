@@ -40,6 +40,6 @@ without them. CI runs both this fast job and a `full-install` job with real depe
 
 ## Responsible use
 
-DeepCloak Bypasses bot-detection. You are responsible for having the right to
-access whatever you fetch. robots.txt is ignored by default; `--respect-robots`
-honors it. See [ADR-0002](docs/adr/0002-ignore-robots-by-default.md).
+DeepCloak can retry a blocked page in a stealth browser. You are responsible for
+having the right to access whatever you fetch. robots.txt is honored by default;
+`--ignore-robots` overrides it. See [ADR-0003](docs/adr/0003-honor-robots-by-default.md).
