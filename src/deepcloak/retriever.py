@@ -18,7 +18,7 @@ from typing import Any
 
 from .fetch_router import fetch
 from .stealth_downloader import plain_get, stealth_get
-from .url_policy import blocked_reason
+from .url_policy import target_policy
 
 __all__ = ["build_stealth_retriever", "searxng_search", "gather_hits"]
 
@@ -99,7 +99,7 @@ def build_stealth_retriever(
 
     from langchain_core.retrievers import BaseRetriever, Document  # type: ignore
 
-    target_check = None if allow_private_urls else blocked_reason
+    target_check = target_policy(allow_private_urls)
     plain_fetch = partial(plain_get, target_check=target_check)
     stealth_fetch = partial(stealth_get, proxy=proxy, target_check=target_check)
 

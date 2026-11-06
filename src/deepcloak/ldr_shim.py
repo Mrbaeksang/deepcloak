@@ -20,7 +20,7 @@ from urllib.robotparser import RobotFileParser
 from .evidence import EvidenceLog
 from .fetch_router import fetch
 from .stealth_downloader import plain_get, stealth_get
-from .url_policy import blocked_reason
+from .url_policy import target_policy
 
 __all__ = ["install", "uninstall", "default_robots_ok", "make_fetch_html"]
 
@@ -89,7 +89,7 @@ def install(
 ) -> type:
     """Patch LDR's HTML downloader to route through DeepCloak. Returns the class."""
     cls = target_cls or _load_ldr_downloader()
-    target_check = None if allow_private_urls else blocked_reason
+    target_check = target_policy(allow_private_urls)
     if plain_fetch is plain_get:
         plain_fetch = partial(plain_get, target_check=target_check)
     if stealth_fetch is None:

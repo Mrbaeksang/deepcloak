@@ -13,7 +13,7 @@ import socket
 from collections.abc import Callable
 from urllib.parse import urlsplit
 
-__all__ = ["BlockedTarget", "blocked_reason"]
+__all__ = ["BlockedTarget", "blocked_reason", "target_policy"]
 
 Resolver = Callable[[str], list[str]]
 
@@ -47,15 +47,17 @@ def _is_public(address: str) -> bool:
     return (mapped or ip).is_global
 
 
-def blocked_reason(url: str, resolve: Resolver = _resolve) -> str | None:
+def blocked_reason(
+    url: str, resolve: Resolver = _resolve, allow_private: bool = False
+) -> str | None:
     """Why ``url`` must not be fetched, or None if it may be. Never raises on bad input."""
     try:
-        return _check(url, resolve)
+        return _check(url, resolve, allow_private)
     except ValueError:  # Includes UnicodeError from an over-long or empty DNS label.
         return "invalid URL"
 
 
-def _check(url: str, resolve: Resolver) -> str | None:
+def _check(url: str, resolve: Resolver, allow_private: bool) -> str | None:
     if _AMBIGUOUS_URL.search(url):
         return "URL contains ambiguous characters"
     parts = urlsplit(url)
@@ -66,6 +68,8 @@ def _check(url: str, resolve: Resolver) -> str | None:
     host = parts.hostname
     if not host:
         return "URL has no host"
+    if allow_private:
+        return None
     # IDNA folds lookalikes such as fullwidth digits, the same way the HTTP client does.
     host = host.encode("idna").decode("ascii").rstrip(".")
     numeric = _numeric_host(host)
@@ -80,3 +84,8 @@ def _check(url: str, resolve: Resolver) -> str | None:
         if not _is_public(address):
             return f"private network target {host}"
     return None
+
+
+def target_policy(allow_private_urls: bool = False) -> Callable[[str], str | None]:
+    """The check to use for a run. Opting in to private addresses keeps the other rules."""
+    return lambda url: blocked_reason(url, allow_private=allow_private_urls)
