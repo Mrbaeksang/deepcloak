@@ -56,6 +56,10 @@ def fetch(
         wall = html_detector(html)
         return f"re-check failed: {wall.signal}" if wall else None
 
+    def usable_plain(html: str | None) -> str | None:
+        """Plain content for a walled page, unless it is only the challenge itself."""
+        return None if html and html_detector(html) else html
+
     if respect_robots and robots_ok is not None and not robots_ok(url):
         return FetchResult(
             None,
@@ -97,7 +101,7 @@ def fetch(
 
     if mode == "off":
         return FetchResult(
-            plain_content,
+            usable_plain(plain_content) if wall else plain_content,
             record(bot_wall=wall.kind if wall else None, escalated=False, bypassed=False,
                    plain_status=plain_status, signal=wall.signal if wall else "plain ok"),
         )
@@ -114,7 +118,7 @@ def fetch(
         html = stealth_fetch(url)
     except Exception as exc:
         return FetchResult(
-            plain_content,
+            usable_plain(plain_content),
             record(bot_wall=wall.kind, escalated=True, bypassed=False, plain_status=plain_status,
                    signal=f"escalation failed: {exc}"),
         )
