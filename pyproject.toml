@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "deepcloak"
-version = "0.1.0"
+version = "0.2.0"
 description = "Local-first research tool with explicit fetch decisions, source evidence, and cited reports. CLI and MCP interfaces."
 readme = "README.md"
 requires-python = ">=3.12,<3.15"
