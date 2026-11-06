@@ -27,7 +27,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--searxng-url", dest="searxng_url", default=None,
                    help="SearXNG instance URL (for --engine searxng)")
     p.add_argument("--stealth", choices=["auto", "always", "off"], default=None)
-    p.add_argument("--respect-robots", action="store_true", dest="respect_robots")
+    p.add_argument("--ignore-robots", action="store_true", dest="ignore_robots",
+                   help="Fetch pages even when robots.txt disallows it.")
+    # Kept so scripts written for 0.1.x still run: honoring robots.txt is now the default.
+    p.add_argument("--respect-robots", action="store_true", help=argparse.SUPPRESS)
     p.add_argument("--allow-private-urls", action="store_true", dest="allow_private_urls",
                    help="Allow fetching localhost and private network addresses.")
     p.add_argument("--proxy", default=None)
@@ -140,7 +143,7 @@ def _run_show(argv: list[str]) -> int:
 
 
 def _cli_dict(args: argparse.Namespace) -> dict:
-    keys = ("depth", "engine", "stealth", "respect_robots", "allow_private_urls", "proxy",
+    keys = ("depth", "engine", "stealth", "ignore_robots", "allow_private_urls", "proxy",
             "provider", "model", "base_url", "searxng_url", "out")
     return {k: getattr(args, k) for k in keys if getattr(args, k) not in (None, False)}
 

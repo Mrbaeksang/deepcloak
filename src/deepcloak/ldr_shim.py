@@ -14,33 +14,15 @@ from __future__ import annotations
 
 from functools import partial
 from typing import Any
-from urllib.parse import urlparse
-from urllib.robotparser import RobotFileParser
 
 from .evidence import EvidenceLog
 from .fetch_router import fetch
 from .host_limit import HostLimiter
+from .robots_policy import make_robots_check
 from .stealth_downloader import plain_get, stealth_get
-from .url_policy import blocked_reason, target_policy
+from .url_policy import target_policy
 
-__all__ = ["install", "uninstall", "default_robots_ok", "make_fetch_html"]
-
-
-def default_robots_ok(url: str) -> bool:
-    """Best-effort robots.txt check; on any error, allow (fail-open)."""
-    try:
-        parts = urlparse(url)
-        robots_url = f"{parts.scheme}://{parts.netloc}/robots.txt"
-        if blocked_reason(robots_url):
-            return True
-        resp = plain_get(robots_url, timeout=10, target_check=blocked_reason)
-        if resp.status_code != 200:
-            return True
-        rp = RobotFileParser()
-        rp.parse(resp.text.splitlines())
-        return rp.can_fetch("*", url)
-    except Exception:
-        return True
+__all__ = ["install", "uninstall", "make_fetch_html"]
 
 
 def _load_ldr_downloader() -> type:
@@ -103,7 +85,7 @@ def install(
     if stealth_fetch is None:
         stealth_fetch = partial(stealth_get, proxy=proxy, target_check=target_check)
     if respect_robots and robots_ok is None:
-        robots_ok = default_robots_ok
+        robots_ok = make_robots_check()
 
     if not hasattr(cls, "_deepcloak_orig_fetch_html"):
         cls._deepcloak_orig_fetch_html = getattr(cls, "_fetch_html", None)

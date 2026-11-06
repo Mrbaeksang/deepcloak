@@ -18,6 +18,7 @@ from typing import Any
 
 from .fetch_router import fetch
 from .host_limit import HostLimiter
+from .robots_policy import make_robots_check
 from .stealth_downloader import plain_get, stealth_get
 from .url_policy import target_policy
 
@@ -101,6 +102,8 @@ def build_stealth_retriever(
     from langchain_core.retrievers import BaseRetriever, Document  # type: ignore
 
     limiter = HostLimiter()
+    if respect_robots and robots_ok is None:
+        robots_ok = make_robots_check()
     target_check = target_policy(allow_private_urls)
     plain_fetch = partial(plain_get, target_check=target_check)
     stealth_fetch = partial(stealth_get, proxy=proxy, target_check=target_check)

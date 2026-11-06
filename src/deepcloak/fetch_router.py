@@ -50,6 +50,7 @@ def fetch(
 
     def record(**kw) -> EvidenceRecord:
         kw.setdefault("plain_status", None)
+        kw.setdefault("robots_ignored", not respect_robots)
         return EvidenceRecord(url=url, elapsed_ms=ms(), **kw)
 
     def failed_recheck(html: str | None) -> str | None:

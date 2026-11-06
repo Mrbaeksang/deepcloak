@@ -21,6 +21,7 @@ class EvidenceRecord:
     plain_status: int | None
     elapsed_ms: int
     signal: str | None = None  # human-readable reason
+    robots_ignored: bool = False  # was the run told to fetch regardless of robots.txt?
 
     def as_dict(self) -> dict:
         return asdict(self)
