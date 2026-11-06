@@ -46,10 +46,10 @@ def test_cli_passes_flags_through(monkeypatch):
         return _fake_result()
 
     monkeypatch.setattr(rc, "research", fake)
-    cli.main(["q", "--engine", "searxng", "--stealth", "off", "--respect-robots"])
+    cli.main(["q", "--engine", "searxng", "--stealth", "off", "--ignore-robots"])
     assert seen["engine"] == "searxng"
     assert seen["stealth"] == "off"
-    assert seen["respect_robots"] is True
+    assert seen["ignore_robots"] is True
 
 
 def test_cli_models_prints_ids_one_per_line(monkeypatch, capsys):
@@ -218,3 +218,15 @@ def test_cli_picker_skipped_when_not_a_tty(monkeypatch):
 
     assert cli.main(["q"]) == 0
     assert calls == []
+
+
+def test_old_respect_robots_flag_is_accepted_and_changes_nothing(monkeypatch):
+    seen = {}
+
+    def fake(q, cli=None, verbose=False):
+        seen.update(cli or {})
+        return _fake_result()
+
+    monkeypatch.setattr(rc, "research", fake)
+    cli.main(["q", "--respect-robots"])
+    assert "ignore_robots" not in seen
