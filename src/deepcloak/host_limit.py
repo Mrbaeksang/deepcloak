@@ -18,7 +18,10 @@ class HostLimiter:
 
     @contextmanager
     def slot(self, url: str) -> Iterator[None]:
-        host = (urlsplit(url).hostname or "").lower()
+        try:
+            host = (urlsplit(url).hostname or "").lower().rstrip(".")
+        except ValueError:  # A malformed URL is refused later; it must not crash the pool.
+            host = ""
         with self._lock:
             semaphore = self._slots.setdefault(host, threading.Semaphore(self._max_per_host))
         with semaphore:
