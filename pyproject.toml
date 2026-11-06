@@ -16,12 +16,12 @@ keywords = ["deep-research", "web-scraping", "stealth", "anti-bot", "cloudflare"
 # depends on its internal symbols.
 dependencies = [
     "local-deep-research==1.6.11",
-    "cloakbrowser>=0.3.27",
+    "cloakbrowser>=0.3.27,<0.8",
     "requests>=2.31",
 ]
 
 [project.optional-dependencies]
-mcp = ["mcp>=1.0"]
+mcp = ["mcp>=1.0,<2"]
 rich = ["rich>=13"]
 dev = ["pytest>=8.0", "ruff>=0.6"]
 
