@@ -66,15 +66,6 @@ def classify(status_code: int, headers: Mapping[str, str], body: str) -> BotWall
     return None
 
 
-def from_response(resp: Any) -> BotWall | None:
-    """Convenience wrapper for a requests-style response object."""
-    return classify(
-        status_code=getattr(resp, "status_code", 0),
-        headers=getattr(resp, "headers", {}) or {},
-        body=getattr(resp, "text", "") or "",
-    )
-
-
 class _TextLength(HTMLParser):
     """Count readable characters, skipping script and style content."""
 
@@ -109,3 +100,15 @@ def classify_html(html: str) -> BotWall | None:
     if wall is None:
         return None
     return wall if _readable_length(html) <= _MAX_CHALLENGE_TEXT_CHARS else None
+
+
+def from_response(resp: Any) -> BotWall | None:
+    """Convenience wrapper for a requests-style response object."""
+    status_code = getattr(resp, "status_code", 0)
+    headers = getattr(resp, "headers", {}) or {}
+    body = getattr(resp, "text", "") or ""
+    wall = classify(status_code=status_code, headers=headers, body=body)
+    # A successful page with plenty of text that merely embeds a widget is not walled.
+    if wall and status_code == 200 and _readable_length(body) > _MAX_CHALLENGE_TEXT_CHARS:
+        return None
+    return wall
