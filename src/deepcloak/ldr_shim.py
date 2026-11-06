@@ -20,7 +20,7 @@ from urllib.robotparser import RobotFileParser
 from .evidence import EvidenceLog
 from .fetch_router import fetch
 from .stealth_downloader import plain_get, stealth_get
-from .url_policy import target_policy
+from .url_policy import blocked_reason, target_policy
 
 __all__ = ["install", "uninstall", "default_robots_ok", "make_fetch_html"]
 
@@ -29,9 +29,12 @@ def default_robots_ok(url: str) -> bool:
     """Best-effort robots.txt check; on any error, allow (fail-open)."""
     try:
         parts = urlparse(url)
+        robots_url = f"{parts.scheme}://{parts.netloc}/robots.txt"
+        resp = plain_get(robots_url, timeout=10, target_check=blocked_reason)
+        if resp.status_code != 200:
+            return True
         rp = RobotFileParser()
-        rp.set_url(f"{parts.scheme}://{parts.netloc}/robots.txt")
-        rp.read()
+        rp.parse(resp.text.splitlines())
         return rp.can_fetch("*", url)
     except Exception:
         return True
