@@ -30,6 +30,8 @@ def default_robots_ok(url: str) -> bool:
     try:
         parts = urlparse(url)
         robots_url = f"{parts.scheme}://{parts.netloc}/robots.txt"
+        if blocked_reason(robots_url):
+            return True
         resp = plain_get(robots_url, timeout=10, target_check=blocked_reason)
         if resp.status_code != 200:
             return True
