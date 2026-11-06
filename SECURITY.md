@@ -24,3 +24,7 @@ terms or the law. robots.txt is ignored by default; pass `--respect-robots` to h
 This is a thin orchestrator over [`local-deep-research`](https://github.com/LearningCircuit/local-deep-research)
 and [`CloakBrowser`](https://github.com/CloakHQ/CloakBrowser); vulnerabilities in those
 upstreams should also be reported to them.
+
+## Private network targets
+
+By default DeepCloak refuses localhost, private and link-local addresses and non-http(s) URLs, including on plain-fetch redirects and browser subresources. `--allow-private-urls` allows the addresses only. Known limits: the browser can still send a request to a private address reached through an HTTP redirect, although its response is discarded and not recorded as a Bypass, and a DNS answer that changes between the check and the fetch is not caught.

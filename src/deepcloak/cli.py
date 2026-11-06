@@ -28,6 +28,8 @@ def build_parser() -> argparse.ArgumentParser:
                    help="SearXNG instance URL (for --engine searxng)")
     p.add_argument("--stealth", choices=["auto", "always", "off"], default=None)
     p.add_argument("--respect-robots", action="store_true", dest="respect_robots")
+    p.add_argument("--allow-private-urls", action="store_true", dest="allow_private_urls",
+                   help="Allow fetching localhost and private network addresses.")
     p.add_argument("--proxy", default=None)
     p.add_argument("--provider", default=None,
                    help="openai/anthropic/gemini/openrouter/ollama/lmstudio/"
@@ -138,7 +140,7 @@ def _run_show(argv: list[str]) -> int:
 
 
 def _cli_dict(args: argparse.Namespace) -> dict:
-    keys = ("depth", "engine", "stealth", "respect_robots", "proxy",
+    keys = ("depth", "engine", "stealth", "respect_robots", "allow_private_urls", "proxy",
             "provider", "model", "base_url", "searxng_url", "out")
     return {k: getattr(args, k) for k in keys if getattr(args, k) not in (None, False)}
 

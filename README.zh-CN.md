@@ -112,6 +112,7 @@ args = ["mcp"]
 | `--stealth` | `auto` | `always` / `off` |
 | `--provider` / `--model` | 自动检测 | `OPENAI` → `ANTHROPIC` → `GEMINI`，或 `ollama` |
 | `--respect-robots` | 关 | 遵守 robots.txt |
+| `--allow-private-urls` | off | 允许访问 localhost 和私有网络地址(默认阻止) |
 | `--proxy` | — | 隐身抓取使用的 SOCKS5 |
 
 ## ⚠️ 负责任地使用

@@ -20,6 +20,7 @@ from urllib.robotparser import RobotFileParser
 from .evidence import EvidenceLog
 from .fetch_router import fetch
 from .stealth_downloader import plain_get, stealth_get
+from .url_policy import blocked_reason, target_policy
 
 __all__ = ["install", "uninstall", "default_robots_ok", "make_fetch_html"]
 
@@ -28,9 +29,14 @@ def default_robots_ok(url: str) -> bool:
     """Best-effort robots.txt check; on any error, allow (fail-open)."""
     try:
         parts = urlparse(url)
+        robots_url = f"{parts.scheme}://{parts.netloc}/robots.txt"
+        if blocked_reason(robots_url):
+            return True
+        resp = plain_get(robots_url, timeout=10, target_check=blocked_reason)
+        if resp.status_code != 200:
+            return True
         rp = RobotFileParser()
-        rp.set_url(f"{parts.scheme}://{parts.netloc}/robots.txt")
-        rp.read()
+        rp.parse(resp.text.splitlines())
         return rp.can_fetch("*", url)
     except Exception:
         return True
@@ -45,7 +51,8 @@ def _load_ldr_downloader() -> type:
 
 
 def make_fetch_html(
-    *, mode, respect_robots, evidence_log, plain_fetch, stealth_fetch, robots_ok, on_event=None
+    *, mode, respect_robots, evidence_log, plain_fetch, stealth_fetch, robots_ok, on_event=None,
+    target_check=None,
 ):
     # LDR may call _fetch_html more than once per URL (download / download_with_result).
     # Cache per run so we Stealth Fetch once and record exactly one Evidence Record.
@@ -61,6 +68,7 @@ def make_fetch_html(
             stealth_fetch=stealth_fetch,
             respect_robots=respect_robots,
             robots_ok=robots_ok,
+            target_check=target_check,
         )
         evidence_log.add(result.evidence)
         if on_event is not None:
@@ -82,11 +90,15 @@ def install(
     stealth_fetch: Any = None,
     robots_ok: Any = None,
     on_event: Any = None,
+    allow_private_urls: bool = False,
 ) -> type:
     """Patch LDR's HTML downloader to route through DeepCloak. Returns the class."""
     cls = target_cls or _load_ldr_downloader()
+    target_check = target_policy(allow_private_urls)
+    if plain_fetch is plain_get:
+        plain_fetch = partial(plain_get, target_check=target_check)
     if stealth_fetch is None:
-        stealth_fetch = partial(stealth_get, proxy=proxy)
+        stealth_fetch = partial(stealth_get, proxy=proxy, target_check=target_check)
     if respect_robots and robots_ok is None:
         robots_ok = default_robots_ok
 
@@ -100,6 +112,7 @@ def install(
         stealth_fetch=stealth_fetch,
         robots_ok=robots_ok,
         on_event=on_event,
+        target_check=target_check,
     )
     return cls
 

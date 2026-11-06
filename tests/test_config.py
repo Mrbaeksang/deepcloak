@@ -201,3 +201,20 @@ def test_load_config_file_rejects_malformed_toml(tmp_path):
     with pytest.raises(ConfigError) as exc:
         load_config_file(str(bad))
     assert "not valid TOML" in str(exc.value)
+
+
+def test_private_urls_are_not_allowed_by_default():
+    assert resolve(cli={}, env={"OPENAI_API_KEY": "x"}).allow_private_urls is False
+
+
+def test_allow_private_urls_from_cli():
+    settings = resolve(cli={"allow_private_urls": True}, env={"OPENAI_API_KEY": "x"})
+    assert settings.allow_private_urls is True
+
+
+@pytest.mark.parametrize("value,expected", [("false", False), ("true", True), (False, False)])
+def test_config_file_booleans_are_parsed(value, expected):
+    settings = resolve(
+        cli={}, env={"OPENAI_API_KEY": "x"}, file={"allow_private_urls": value}
+    )
+    assert settings.allow_private_urls is expected

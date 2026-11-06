@@ -112,6 +112,7 @@ args = ["mcp"]
 | `--stealth` | `auto` | `always` / `off` |
 | `--provider` / `--model` | 자동감지 | `OPENAI_API_KEY` → `ANTHROPIC_API_KEY` → `GEMINI_API_KEY` → `OPENROUTER_API_KEY`; 또는 `ollama` / `lmstudio` / `llamacpp` / `openai-endpoint` (`--base-url`) |
 | `--respect-robots` | 끔 | robots.txt 존중 |
+| `--allow-private-urls` | off | localhost와 사설 네트워크 주소 허용 (기본은 차단) |
 | `--proxy` | — | Stealth Fetch용 SOCKS5 |
 | `--json` | 끔 | 결과 전체(리포트 + Evidence Record + 설정)를 JSON으로 출력 |
 

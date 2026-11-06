@@ -112,6 +112,7 @@ Then your agent can call `deep_research` and read bot-walled sources directly. P
 | `--stealth` | `auto` | `always` / `off` |
 | `--provider` / `--model` | auto-detected | `OPENAI_API_KEY` → `ANTHROPIC_API_KEY` → `GEMINI_API_KEY` → `OPENROUTER_API_KEY`; or `ollama` / `lmstudio` / `llamacpp` / `openai-endpoint` (`--base-url`) |
 | `--respect-robots` | off | honor robots.txt |
+| `--allow-private-urls` | off | allow localhost and private network addresses (blocked by default) |
 | `--proxy` | — | SOCKS5 for the Stealth Fetch |
 | `--json` | off | print the full result (report + Evidence Records + settings) as JSON |
 
