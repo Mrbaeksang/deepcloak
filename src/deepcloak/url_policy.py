@@ -25,6 +25,11 @@ class BlockedTarget(Exception):
     """A fetch (or one of its redirects) pointed at a target that is not allowed."""
 
 
+_IPV4_TRANSLATION_NETWORKS = tuple(
+    ipaddress.ip_network(network) for network in ("::/96", "64:ff9b::/96", "::ffff:0:0:0/96")
+)
+
+
 def _resolve(host: str) -> list[str]:
     return [info[4][0] for info in socket.getaddrinfo(host, None)]
 
@@ -43,8 +48,19 @@ def _numeric_host(host: str) -> str | None:
 
 def _is_public(address: str) -> bool:
     ip = ipaddress.ip_address(address.split("%", 1)[0])
-    mapped = getattr(ip, "ipv4_mapped", None)
-    return (mapped or ip).is_global
+    if not ip.is_global:
+        return False
+    return all(embedded.is_global for embedded in _embedded_ipv4(ip))
+
+
+def _embedded_ipv4(ip: ipaddress.IPv4Address | ipaddress.IPv6Address) -> list:
+    """IPv4 addresses that an IPv6 address can reach on hosts with translation."""
+    if ip.version == 4:
+        return []
+    found = [ip.ipv4_mapped, ip.sixtofour, ip.teredo[1] if ip.teredo else None]
+    if any(ip in network for network in _IPV4_TRANSLATION_NETWORKS):
+        found.append(ipaddress.IPv4Address(int(ip) & 0xFFFFFFFF))
+    return [address for address in found if address is not None]
 
 
 def blocked_reason(
