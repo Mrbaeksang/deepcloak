@@ -79,6 +79,7 @@ def _run_ldr(
                         evidence_log=evidence_log,
                         on_event=on_event,
                         respect_robots=settings.respect_robots,
+                        allow_private_urls=settings.allow_private_urls,
                         proxy=settings.proxy,
                     )
                 }
@@ -160,6 +161,7 @@ def research(
                 respect_robots=settings.respect_robots,
                 proxy=settings.proxy,
                 on_event=reporter,
+                allow_private_urls=settings.allow_private_urls,
             )
         except Exception as exc:
             # LDR not importable yet / seam moved — proceed without Stealth Fetch,

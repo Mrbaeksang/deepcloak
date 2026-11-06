@@ -56,6 +56,7 @@ class Settings:
     proxy: str | None
     searxng_url: str | None
     base_url: str | None = None  # for provider "openai-endpoint" (local OpenAI-compatible)
+    allow_private_urls: bool = False
 
     def to_ldr_env(self) -> dict[str, str]:
         """Map resolved settings to the LDR_* environment variables LDR reads."""
@@ -126,9 +127,9 @@ def _validate(value: str, valid: set[str], label: str) -> str:
 # Keys a config file / DEEPCLOAK_* env var may set (mirrors CLI flag names).
 _SETTING_KEYS = (
     "provider", "model", "depth", "engine", "stealth",
-    "base_url", "searxng_url", "proxy", "out", "respect_robots",
+    "base_url", "searxng_url", "proxy", "out", "respect_robots", "allow_private_urls",
 )
-_BOOL_KEYS = frozenset({"respect_robots"})
+_BOOL_KEYS = frozenset({"respect_robots", "allow_private_urls"})
 _TRUTHY = {"1", "true", "yes", "on"}
 
 
@@ -212,6 +213,7 @@ def resolve(cli: Mapping, env: Mapping, file: Mapping | None = None) -> Settings
         stealth_mode=stealth_mode,
         depth=depth,
         respect_robots=bool(src.get("respect_robots", False)),
+        allow_private_urls=bool(src.get("allow_private_urls", False)),
         out=src.get("out"),
         proxy=src.get("proxy"),
         searxng_url=searxng_url,

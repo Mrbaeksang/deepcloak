@@ -18,6 +18,7 @@ from typing import Any
 
 from .fetch_router import fetch
 from .stealth_downloader import plain_get, stealth_get
+from .url_policy import blocked_reason
 
 __all__ = ["build_stealth_retriever", "searxng_search", "gather_hits"]
 
@@ -91,13 +92,16 @@ def build_stealth_retriever(
     respect_robots: bool = False,
     robots_ok: Any = None,
     proxy: str | None = None,
+    allow_private_urls: bool = False,
 ):
     """Construct a LangChain BaseRetriever backed by the stealth fetch path."""
     from functools import partial
 
     from langchain_core.retrievers import BaseRetriever, Document  # type: ignore
 
-    stealth_fetch = partial(stealth_get, proxy=proxy)
+    target_check = None if allow_private_urls else blocked_reason
+    plain_fetch = partial(plain_get, target_check=target_check)
+    stealth_fetch = partial(stealth_get, proxy=proxy, target_check=target_check)
 
     class StealthRetriever(BaseRetriever):
         model_config = {"arbitrary_types_allowed": True}
@@ -108,10 +112,11 @@ def build_stealth_retriever(
             result = fetch(
                 url,
                 mode=mode,
-                plain_fetch=plain_get,
+                plain_fetch=plain_fetch,
                 stealth_fetch=stealth_fetch,
                 respect_robots=respect_robots,
                 robots_ok=robots_ok,
+                target_check=target_check,
             )
             doc = None
             if result.content:

@@ -13,6 +13,7 @@ from typing import Any
 
 from .bot_wall_detector import BotWall, classify_html, from_response
 from .evidence import EvidenceRecord
+from .url_policy import BlockedTarget
 
 __all__ = ["FetchResult", "fetch"]
 
@@ -21,6 +22,7 @@ StealthFetch = Callable[[str], str]
 Detector = Callable[[Any], "BotWall | None"]
 HtmlDetector = Callable[[str], "BotWall | None"]
 RobotsOk = Callable[[str], bool]
+TargetCheck = Callable[[str], "str | None"]
 
 
 @dataclass
@@ -39,6 +41,7 @@ def fetch(
     html_detector: HtmlDetector = classify_html,
     respect_robots: bool = False,
     robots_ok: RobotsOk | None = None,
+    target_check: TargetCheck | None = None,
 ) -> FetchResult:
     start = time.monotonic()
 
@@ -55,6 +58,17 @@ def fetch(
             return "stealth fetch returned an empty page"
         wall = html_detector(html)
         return f"re-check failed: {wall.signal}" if wall else None
+
+    def blocked(reason: str, plain_status: int | None = None) -> FetchResult:
+        return FetchResult(
+            None,
+            record(bot_wall=None, escalated=False, bypassed=False, plain_status=plain_status,
+                   signal=f"skipped: {reason}"),
+        )
+
+    reason = target_check(url) if target_check is not None else None
+    if reason:
+        return blocked(reason)
 
     if respect_robots and robots_ok is not None and not robots_ok(url):
         return FetchResult(
@@ -92,6 +106,8 @@ def fetch(
         plain_status = getattr(resp, "status_code", None)
         plain_content = getattr(resp, "text", None)
         wall = detector(resp)
+    except BlockedTarget as exc:
+        return blocked(str(exc))
     except Exception as exc:
         wall = BotWall("blocked", f"plain fetch failed: {exc}")
 

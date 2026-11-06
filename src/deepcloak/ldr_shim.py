@@ -20,6 +20,7 @@ from urllib.robotparser import RobotFileParser
 from .evidence import EvidenceLog
 from .fetch_router import fetch
 from .stealth_downloader import plain_get, stealth_get
+from .url_policy import blocked_reason
 
 __all__ = ["install", "uninstall", "default_robots_ok", "make_fetch_html"]
 
@@ -45,7 +46,8 @@ def _load_ldr_downloader() -> type:
 
 
 def make_fetch_html(
-    *, mode, respect_robots, evidence_log, plain_fetch, stealth_fetch, robots_ok, on_event=None
+    *, mode, respect_robots, evidence_log, plain_fetch, stealth_fetch, robots_ok, on_event=None,
+    target_check=None,
 ):
     # LDR may call _fetch_html more than once per URL (download / download_with_result).
     # Cache per run so we Stealth Fetch once and record exactly one Evidence Record.
@@ -61,6 +63,7 @@ def make_fetch_html(
             stealth_fetch=stealth_fetch,
             respect_robots=respect_robots,
             robots_ok=robots_ok,
+            target_check=target_check,
         )
         evidence_log.add(result.evidence)
         if on_event is not None:
@@ -82,11 +85,15 @@ def install(
     stealth_fetch: Any = None,
     robots_ok: Any = None,
     on_event: Any = None,
+    allow_private_urls: bool = False,
 ) -> type:
     """Patch LDR's HTML downloader to route through DeepCloak. Returns the class."""
     cls = target_cls or _load_ldr_downloader()
+    target_check = None if allow_private_urls else blocked_reason
+    if plain_fetch is plain_get:
+        plain_fetch = partial(plain_get, target_check=target_check)
     if stealth_fetch is None:
-        stealth_fetch = partial(stealth_get, proxy=proxy)
+        stealth_fetch = partial(stealth_get, proxy=proxy, target_check=target_check)
     if respect_robots and robots_ok is None:
         robots_ok = default_robots_ok
 
@@ -100,6 +107,7 @@ def install(
         stealth_fetch=stealth_fetch,
         robots_ok=robots_ok,
         on_event=on_event,
+        target_check=target_check,
     )
     return cls
 
