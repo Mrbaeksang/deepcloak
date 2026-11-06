@@ -60,7 +60,7 @@ def test_phase_printer_writes_to_stderr(capsys):
 def test_reporter_plain_fallback_streams_lines_without_rich(monkeypatch):
     import io
 
-    monkeypatch.delitem(__import__("sys").modules, "rich", raising=False)
+    monkeypatch.setitem(__import__("sys").modules, "rich.console", None)  # import -> ImportError
     r = ProgressReporter(stream=io.StringIO())
     with r:
         r.phase("searching", 25, {"description": "Reading pages"})
