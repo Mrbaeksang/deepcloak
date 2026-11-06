@@ -1,6 +1,6 @@
 # DeepCloak
 
-Local-first **Deep Research** agent that reads the whole web — including pages behind a **Bot Wall** (Cloudflare / Datadome / Turnstile / reCAPTCHA). A thin orchestrator over `local-deep-research` (the research loop) and `cloakbrowser` (stealth fetch), shipped as a CLI, an MCP server, and a Claude skill. MIT.
+Local-first **Deep Research** tool with explicit fetch decisions and Evidence Records. A thin orchestrator over `local-deep-research` (the research loop) and `cloakbrowser` (stealth fetch), shipped as a CLI, an MCP server, and a Claude skill. MIT.
 
 See @CONTEXT.md for the domain glossary — use its terms (Bot Wall, Stealth Fetch, Escalation, Bypass, Evidence Record, Deep Research) in code, issues, and docs.
 
@@ -30,7 +30,7 @@ See @CONTEXT.md for the domain glossary — use its terms (Bot Wall, Stealth Fet
 ### Architecture
 - Inject stealth through the **narrowest** LDR seam — override `_fetch_with_playwright` only. See `docs/adr/0001`. Don't widen the monkeypatch surface.
 - Pin `local-deep-research` with `==`; the shim relies on internal symbols.
-- robots.txt is **ignored by default**; `--respect-robots` is opt-in. See `docs/adr/0002`.
+- robots.txt is **honored by default**; `--ignore-robots` opts out. See `docs/adr/0003`.
 - Respect ADRs in `docs/adr/`. If a change contradicts one, stop and flag it — never silently override.
 
 ### Gotchas

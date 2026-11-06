@@ -1,6 +1,6 @@
 # DeepCloak
 
-A local-first deep research agent that reads the whole web — including pages behind anti-bot defenses that other research tools cannot fetch. It pairs an iterative multi-source research loop with a stealth browser fetch layer.
+A local-first deep research tool with explicit fetch decisions and Evidence Records, including for pages behind anti-bot defenses. It pairs an iterative multi-source research loop with a stealth browser fetch layer.
 
 ## Language
 
@@ -9,7 +9,7 @@ An anti-bot defense that blocks a plain HTTP fetch — Cloudflare, Datadome, Tur
 _Avoid_: block, captcha, firewall, WAF
 
 **Stealth Fetch**:
-Retrieving a page's content through the stealth browser so the Bot Wall is bypassed.
+Retrying a page in the stealth browser after a Bot Wall was detected. It may or may not succeed.
 _Avoid_: scrape, crawl, render
 
 **Escalation**:
