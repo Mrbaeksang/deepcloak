@@ -169,6 +169,7 @@ def test_stealth_exception_keeps_the_run_going():
 
     r = fetch("https://x.test", plain_fetch=_walled, stealth_fetch=boom)
     assert r.evidence.bypassed is False
+    assert r.content == "denied"
     assert "browser crashed" in r.evidence.signal
 
 
@@ -181,3 +182,23 @@ def test_report_badge_count_matches_sidecar():
     assert sum(r["bypassed"] for r in sidecar["records"]) == 2
     assert sidecar["summary"]["bypassed"] == 2
     assert "Bypassed 2 bot-walled sources" in log.badge()
+
+
+def _challenge_plain(_url):
+    return SimpleNamespace(status_code=403, headers={}, text=CHALLENGE_HTML)
+
+
+def test_plain_challenge_is_dropped_when_escalation_fails():
+    def boom(_url):
+        raise RuntimeError("browser crashed")
+
+    r = fetch("https://x.test", plain_fetch=_challenge_plain, stealth_fetch=boom)
+    assert r.content is None
+    assert r.evidence.bypassed is False
+
+
+def test_plain_challenge_is_dropped_when_stealth_is_off():
+    r = fetch("https://x.test", mode="off", plain_fetch=_challenge_plain,
+              stealth_fetch=_stealth_returning("unused"))
+    assert r.content is None
+    assert r.evidence.bot_wall == "cloudflare"
