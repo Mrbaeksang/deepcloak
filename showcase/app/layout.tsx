@@ -6,23 +6,23 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "sw
 const jbmono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jbmono", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "DeepCloak — deep research that reads bot-walled pages",
+  title: "DeepCloak — research with explicit fetch decisions and evidence",
   description:
-    "A local-first deep research agent that bypasses Cloudflare, Datadome, Turnstile & reCAPTCHA to read the whole web.",
+    "A local-first research tool with explicit fetch decisions, source evidence, and cited reports. CLI and MCP.",
   metadataBase: new URL("https://deepcloak.vercel.app"),
   alternates: { canonical: "/" },
   openGraph: {
-    title: "DeepCloak — deep research that reads bot-walled pages",
-    description: "Deep research that reads pages other tools can't — even behind a Bot Wall.",
+    title: "DeepCloak — research with explicit fetch decisions and evidence",
+    description: "Local-first research with explicit fetch decisions, source evidence, and cited reports.",
     type: "website",
     url: "https://deepcloak.vercel.app",
     siteName: "DeepCloak",
-    images: [{ url: "/og.png", width: 1280, height: 640, alt: "DeepCloak bypassing Cloudflare/Turnstile in a real run" }],
+    images: [{ url: "/og.png", width: 1280, height: 640, alt: "A recorded DeepCloak run" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "DeepCloak — deep research that reads bot-walled pages",
-    description: "Deep research that reads pages other tools can't — even behind a Bot Wall.",
+    title: "DeepCloak — research with explicit fetch decisions and evidence",
+    description: "Local-first research with explicit fetch decisions, source evidence, and cited reports.",
     images: ["/og.png"],
   },
 };
