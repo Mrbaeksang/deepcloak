@@ -5,6 +5,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import pytest
 
+pytest.importorskip("requests")  # the fast CI job installs without dependencies
+
 from deepcloak.stealth_downloader import plain_get
 from deepcloak.url_policy import BlockedTarget
 
