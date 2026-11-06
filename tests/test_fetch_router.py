@@ -9,6 +9,7 @@ import pytest
 from deepcloak.bot_wall_detector import BotWall
 from deepcloak.evidence import EvidenceLog
 from deepcloak.fetch_router import fetch
+from deepcloak.url_policy import BlockedTarget
 
 
 class FakeResp:
@@ -181,3 +182,33 @@ def test_report_badge_count_matches_sidecar():
     assert sum(r["bypassed"] for r in sidecar["records"]) == 2
     assert sidecar["summary"]["bypassed"] == 2
     assert "Bypassed 2 bot-walled sources" in log.badge()
+
+
+def test_blocked_target_sends_no_request():
+    calls = []
+
+    def must_not_run(url):
+        calls.append(url)
+        raise AssertionError("request sent")
+
+    for mode in ("auto", "always", "off"):
+        r = fetch("http://127.0.0.1/", mode=mode, plain_fetch=must_not_run,
+                  stealth_fetch=must_not_run, target_check=lambda _u: "private network target x")
+        assert r.content is None
+        assert r.evidence.bypassed is False
+        assert r.evidence.escalated is False
+        assert r.evidence.signal == "skipped: private network target x"
+    assert calls == []
+
+
+def test_blocked_redirect_does_not_escalate():
+    def redirected(_url):
+        raise BlockedTarget("redirect to private network target x")
+
+    def must_not_run(_url):
+        raise AssertionError("escalated")
+
+    r = fetch("https://public.test/", plain_fetch=redirected, stealth_fetch=must_not_run)
+    assert r.content is None
+    assert r.evidence.escalated is False
+    assert "redirect to private network target x" in r.evidence.signal
