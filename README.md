@@ -9,7 +9,7 @@ A CLI and MCP wrapper around local-deep-research and CloakBrowser. It retries se
 [![PyPI](https://img.shields.io/pypi/v/deepcloak?color=a855f7&label=pypi)](https://pypi.org/project/deepcloak/)
 [![CI](https://github.com/Mrbaeksang/deepcloak/actions/workflows/ci.yml/badge.svg)](https://github.com/Mrbaeksang/deepcloak/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-a855f7.svg)](LICENSE)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](pyproject.toml)
 [![MCP native](https://img.shields.io/badge/MCP-native-22d3ee.svg)](#-use-it-from-an-ai-agent)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-34d399.svg)](CONTRIBUTING.md)
 [![GitHub stars](https://img.shields.io/github/stars/Mrbaeksang/deepcloak?style=social)](https://github.com/Mrbaeksang/deepcloak/stargazers)

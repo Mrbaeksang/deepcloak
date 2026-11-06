@@ -7,7 +7,7 @@ name = "deepcloak"
 version = "0.1.0"
 description = "Local-first deep research agent that reads the whole web — even pages behind Cloudflare, Datadome, Turnstile & reCAPTCHA."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12,<3.15"
 license = "MIT"
 authors = [{ name = "Mrbaeksang", email = "contact@baeksang.dev" }]
 keywords = ["deep-research", "web-scraping", "stealth", "anti-bot", "cloudflare", "mcp", "llm", "ai-agent", "rag", "local-first"]
@@ -16,12 +16,12 @@ keywords = ["deep-research", "web-scraping", "stealth", "anti-bot", "cloudflare"
 # depends on its internal symbols.
 dependencies = [
     "local-deep-research==1.6.11",
-    "cloakbrowser>=0.3.27",
+    "cloakbrowser>=0.3.27,<0.8",
     "requests>=2.31",
 ]
 
 [project.optional-dependencies]
-mcp = ["mcp>=1.0"]
+mcp = ["mcp>=1.0,<2"]
 rich = ["rich>=13"]
 dev = ["pytest>=8.0", "ruff>=0.6"]
 

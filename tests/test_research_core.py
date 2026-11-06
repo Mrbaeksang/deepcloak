@@ -162,6 +162,7 @@ def test_progress_callback_attached_when_supported_and_verbose(monkeypatch, caps
     monkeypatch.setitem(sys.modules, "local_deep_research", ldr)
     monkeypatch.setitem(sys.modules, "local_deep_research.api", api)
     monkeypatch.setitem(sys.modules, "local_deep_research.api.research_functions", rf_mod)
+    monkeypatch.setitem(sys.modules, "rich.console", None)  # plain output, with or without rich
     monkeypatch.setattr(rc.ldr_shim, "install", lambda **kw: None)
 
     out = rc.research("q", cli={"depth": "detailed"}, env={"OPENAI_API_KEY": "x"}, verbose=True)
