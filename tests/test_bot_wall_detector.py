@@ -1,10 +1,12 @@
 """Behavior tests for bot_wall_detector.classify() against committed fixtures."""
 
+import time
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
-from deepcloak.bot_wall_detector import classify
+from deepcloak.bot_wall_detector import classify, classify_html, from_response
 
 FIXTURES = Path(__file__).parent / "fixtures" / "botwalls"
 
@@ -68,3 +70,46 @@ def test_from_response_helper():
 
     wall = from_response(Resp())
     assert wall is not None and wall.kind == "rate_limit"
+
+
+@pytest.mark.parametrize(
+    "name", ["cloudflare_challenge.html", "datadome.html", "recaptcha.html", "turnstile.html"]
+)
+def test_classify_html_flags_challenge_pages(name):
+    html = _body(name)
+    assert classify_html(html) is not None
+
+
+def test_classify_html_passes_normal_page():
+    html = _body("normal.html")
+    assert classify_html(html) is None
+
+
+def test_classify_html_passes_long_page_with_a_widget():
+    html = (FIXTURES.parent / "pages/article_about_bot_walls.html").read_text(encoding="utf-8")
+    assert classify(200, {}, html) is not None  # the plain detector would still escalate
+    assert classify_html(html) is None
+
+
+@pytest.mark.parametrize(
+    "markup", ["<script>" * 20_000, "<" * 400_000, "<a " * 100_000], ids=["script", "lt", "attr"]
+)
+def test_classify_html_stays_fast_on_hostile_markup(markup):
+    start = time.monotonic()
+    classify_html("just a moment" + markup)
+    assert time.monotonic() - start < 2
+
+
+def test_script_text_does_not_count_as_readable():
+    html = "<title>just a moment</title><script>" + "x" * 5000 + "</script>"
+    assert classify_html(html) is not None
+
+
+def test_long_successful_page_with_widget_is_not_a_wall():
+    body = (FIXTURES.parent / "pages/article_about_bot_walls.html").read_text(encoding="utf-8")
+    assert from_response(SimpleNamespace(status_code=200, headers={}, text=body)) is None
+
+
+def test_blocked_status_is_a_wall_even_with_long_text():
+    body = "<p>" + "text " * 1000 + "</p>"
+    assert from_response(SimpleNamespace(status_code=403, headers={}, text=body)) is not None

@@ -17,7 +17,7 @@ The switch from a plain fetch to a Stealth Fetch for a single URL, made because 
 _Avoid_: retry, fallback, upgrade
 
 **Bypass**:
-A Stealth Fetch that succeeds after an Escalation — content obtained where the plain fetch was walled.
+A Stealth Fetch that succeeds after an Escalation — content obtained where the plain fetch was walled, and that passes a Bot Wall re-check.
 _Avoid_: crack, defeat, evade
 
 **Evidence Record**:

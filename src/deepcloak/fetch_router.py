@@ -11,7 +11,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
-from .bot_wall_detector import BotWall, from_response
+from .bot_wall_detector import BotWall, classify_html, from_response
 from .evidence import EvidenceRecord
 
 __all__ = ["FetchResult", "fetch"]
@@ -19,6 +19,7 @@ __all__ = ["FetchResult", "fetch"]
 PlainFetch = Callable[[str], Any]
 StealthFetch = Callable[[str], str]
 Detector = Callable[[Any], "BotWall | None"]
+HtmlDetector = Callable[[str], "BotWall | None"]
 RobotsOk = Callable[[str], bool]
 
 
@@ -35,6 +36,7 @@ def fetch(
     plain_fetch: PlainFetch,
     stealth_fetch: StealthFetch,
     detector: Detector = from_response,
+    html_detector: HtmlDetector = classify_html,
     respect_robots: bool = False,
     robots_ok: RobotsOk | None = None,
 ) -> FetchResult:
@@ -47,6 +49,17 @@ def fetch(
         kw.setdefault("plain_status", None)
         return EvidenceRecord(url=url, elapsed_ms=ms(), **kw)
 
+    def failed_recheck(html: str | None) -> str | None:
+        """Why a Stealth Fetch result can't count as a Bypass, or None if it can."""
+        if not html or not html.strip():
+            return "stealth fetch returned an empty page"
+        wall = html_detector(html)
+        return f"re-check failed: {wall.signal}" if wall else None
+
+    def usable_plain(html: str | None) -> str | None:
+        """Plain content for a walled page, unless it is only the challenge itself."""
+        return None if html and html_detector(html) else html
+
     if respect_robots and robots_ok is not None and not robots_ok(url):
         return FetchResult(
             None,
@@ -56,17 +69,23 @@ def fetch(
 
     if mode == "always":
         try:
-            return FetchResult(
-                stealth_fetch(url),
-                record(bot_wall="forced", escalated=True, bypassed=True,
-                       signal="stealth fetch (mode=always)"),
-            )
+            html = stealth_fetch(url)
         except Exception as exc:
             return FetchResult(
                 None,
                 record(bot_wall="forced", escalated=True, bypassed=False,
                        signal=f"stealth failed: {exc}"),
             )
+        failure = failed_recheck(html)
+        if failure:
+            return FetchResult(
+                None, record(bot_wall="forced", escalated=True, bypassed=False, signal=failure)
+            )
+        return FetchResult(
+            html,
+            record(bot_wall="forced", escalated=True, bypassed=True,
+                   signal="stealth fetch (mode=always)"),
+        )
 
     # mode "auto" or "off": try plain first.
     plain_status: int | None = None
@@ -82,7 +101,7 @@ def fetch(
 
     if mode == "off":
         return FetchResult(
-            plain_content,
+            usable_plain(plain_content) if wall else plain_content,
             record(bot_wall=wall.kind if wall else None, escalated=False, bypassed=False,
                    plain_status=plain_status, signal=wall.signal if wall else "plain ok"),
         )
@@ -96,14 +115,22 @@ def fetch(
         )
 
     try:
-        return FetchResult(
-            stealth_fetch(url),
-            record(bot_wall=wall.kind, escalated=True, bypassed=True, plain_status=plain_status,
-                   signal=f"bypassed {wall.kind}: {wall.signal}"),
-        )
+        html = stealth_fetch(url)
     except Exception as exc:
         return FetchResult(
-            plain_content,
+            usable_plain(plain_content),
             record(bot_wall=wall.kind, escalated=True, bypassed=False, plain_status=plain_status,
                    signal=f"escalation failed: {exc}"),
         )
+    failure = failed_recheck(html)
+    if failure:
+        return FetchResult(
+            None,
+            record(bot_wall=wall.kind, escalated=True, bypassed=False, plain_status=plain_status,
+                   signal=failure),
+        )
+    return FetchResult(
+        html,
+        record(bot_wall=wall.kind, escalated=True, bypassed=True, plain_status=plain_status,
+               signal=f"bypassed {wall.kind}: {wall.signal}"),
+    )
