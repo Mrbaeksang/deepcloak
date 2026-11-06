@@ -17,6 +17,7 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
 from .fetch_router import fetch
+from .host_limit import HostLimiter
 from .stealth_downloader import plain_get, stealth_get
 from .url_policy import blocked_reason
 
@@ -99,6 +100,7 @@ def build_stealth_retriever(
 
     from langchain_core.retrievers import BaseRetriever, Document  # type: ignore
 
+    limiter = HostLimiter()
     target_check = None if allow_private_urls else blocked_reason
     plain_fetch = partial(plain_get, target_check=target_check)
     stealth_fetch = partial(stealth_get, proxy=proxy, target_check=target_check)
@@ -109,15 +111,16 @@ def build_stealth_retriever(
         def _process_hit(self, hit: dict):
             """Fetch one search hit through the stealth path; no side effects."""
             url = hit["url"]
-            result = fetch(
-                url,
-                mode=mode,
-                plain_fetch=plain_fetch,
-                stealth_fetch=stealth_fetch,
-                respect_robots=respect_robots,
-                robots_ok=robots_ok,
-                target_check=target_check,
-            )
+            with limiter.slot(url):
+                result = fetch(
+                    url,
+                    mode=mode,
+                    plain_fetch=plain_fetch,
+                    stealth_fetch=stealth_fetch,
+                    respect_robots=respect_robots,
+                    robots_ok=robots_ok,
+                    target_check=target_check,
+                )
             doc = None
             if result.content:
                 doc = Document(
