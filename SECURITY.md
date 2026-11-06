@@ -21,6 +21,10 @@ research agent can read pages a person with a browser could read. **You are resp
 for having the right to access whatever you fetch** — don't use it to violate a site's
 terms or the law. robots.txt is ignored by default; pass `--respect-robots` to honor it.
 
+## Private network targets
+
+By default DeepCloak refuses localhost, private and link-local addresses, including on plain-fetch redirects and browser subresources. Known limits: the browser can still send a request to a private address reached through an HTTP redirect, although its response is discarded and not recorded as a Bypass, and a DNS answer that changes between the check and the fetch is not caught.
+
 This is a thin orchestrator over [`local-deep-research`](https://github.com/LearningCircuit/local-deep-research)
 and [`CloakBrowser`](https://github.com/CloakHQ/CloakBrowser); vulnerabilities in those
 upstreams should also be reported to them.
