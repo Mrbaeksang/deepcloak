@@ -19,7 +19,7 @@ ruff check .                   # lint
 
 For fast unit work you don't need the heavy upstreams: `pip install pytest ruff`
 then `pip install -e . --no-deps` — the pure modules and mocked smoke tests run
-without them (this is what CI does).
+without them. CI runs both this fast job and a `full-install` job with real dependencies.
 
 ## Principles
 

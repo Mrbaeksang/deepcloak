@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11", "3.12"]
+        python-version: ["3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -27,3 +27,20 @@ jobs:
         run: ruff check .
       - name: Test
         run: pytest
+
+  full-install:
+    # Installs what `pip install deepcloak[mcp]` really resolves, so an upstream
+    # release that breaks us fails here instead of on a user's machine.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v10.3.3
+      - name: Install
+        run: |
+          uv venv
+          uv pip install -e ".[dev,mcp,rich]"
+      - name: Test
+        run: uv run --no-sync pytest
