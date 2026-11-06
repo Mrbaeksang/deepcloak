@@ -4,6 +4,10 @@ Listing is tested against recorded response fixtures through an injected
 fetch function — no live network, no LDR import.
 """
 
+import json
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
 import pytest
 
 from deepcloak.providers import ProviderError, detect, get, list_models
@@ -112,3 +116,34 @@ def test_list_models_openai_endpoint_lists_from_base_url():
     assert models == ["gpt-4.1", "gpt-4.1-mini"]
     url, _ = fetch.calls[0]
     assert url == "http://localhost:8080/v1/models"
+
+
+@pytest.mark.parametrize("api_key,auth", [("k", "Bearer k"), (None, None)])
+def test_list_models_over_real_http(api_key, auth):
+    pytest.importorskip("requests")
+
+    seen = {}
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            seen["path"] = self.path
+            seen["auth"] = self.headers.get("Authorization")
+            body = json.dumps({"data": [{"id": "b"}, {"id": "a"}]}).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *args):
+            pass
+
+    server = HTTPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        base_url = f"http://127.0.0.1:{server.server_port}/v1"
+        models = list_models("openai-endpoint", api_key=api_key, base_url=base_url)
+    finally:
+        server.shutdown()
+    assert models == ["a", "b"]
+    assert seen["path"] == "/v1/models"
+    assert seen["auth"] == auth

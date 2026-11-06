@@ -5,6 +5,12 @@ All notable changes to DeepCloak are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.2.1] — 2026-11-06
+
+### Fixed
+- `deepcloak models`, the MCP `list_models` tool and the provider picker failed for
+  OpenRouter and local servers when no API key was set.
+
 ## [0.2.0] — 2026-11-06
 
 ### Changed
@@ -81,6 +87,7 @@ First public release.
 - `--respect-robots` to honor robots.txt (ignored by default — see ADR-0002).
 - Per-document content cap so small-context local models can finish a report.
 
-[Unreleased]: https://github.com/Mrbaeksang/deepcloak/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/Mrbaeksang/deepcloak/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/Mrbaeksang/deepcloak/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/Mrbaeksang/deepcloak/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Mrbaeksang/deepcloak/releases/tag/v0.1.0
