@@ -19,6 +19,7 @@ from urllib.robotparser import RobotFileParser
 
 from .evidence import EvidenceLog
 from .fetch_router import fetch
+from .host_limit import HostLimiter
 from .stealth_downloader import plain_get, stealth_get
 from .url_policy import blocked_reason, target_policy
 
@@ -57,19 +58,21 @@ def make_fetch_html(
     # LDR may call _fetch_html more than once per URL (download / download_with_result).
     # Cache per run so we Stealth Fetch once and record exactly one Evidence Record.
     cache: dict[str, str | None] = {}
+    limiter = HostLimiter()
 
     def _fetch_html(self, url: str) -> str | None:
         if url in cache:
             return cache[url]
-        result = fetch(
-            url,
-            mode=mode,
-            plain_fetch=plain_fetch,
-            stealth_fetch=stealth_fetch,
-            respect_robots=respect_robots,
-            robots_ok=robots_ok,
-            target_check=target_check,
-        )
+        with limiter.slot(url):
+            result = fetch(
+                url,
+                mode=mode,
+                plain_fetch=plain_fetch,
+                stealth_fetch=stealth_fetch,
+                respect_robots=respect_robots,
+                robots_ok=robots_ok,
+                target_check=target_check,
+            )
         evidence_log.add(result.evidence)
         if on_event is not None:
             on_event(result.evidence)
