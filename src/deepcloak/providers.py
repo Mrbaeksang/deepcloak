@@ -188,7 +188,7 @@ def _headers_and_url(spec: ProviderSpec, api_key: str | None, url: str) -> tuple
         return f"{url}{sep}key={api_key}", {}
     # OpenAI-compatible listings work without auth (OpenRouter's directory is
     # public; local servers ignore keys).
-    return url, {"Authorization": f"Bearer {api_key}"} if api_key else (url, {})
+    return url, ({"Authorization": f"Bearer {api_key}"} if api_key else {})
 
 
 def _parse_ids(spec: ProviderSpec, body: dict) -> list[str]:
