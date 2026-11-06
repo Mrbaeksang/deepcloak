@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from deepcloak.bot_wall_detector import classify
+from deepcloak.bot_wall_detector import classify, classify_html
 
 FIXTURES = Path(__file__).parent / "fixtures" / "botwalls"
 
@@ -68,3 +68,22 @@ def test_from_response_helper():
 
     wall = from_response(Resp())
     assert wall is not None and wall.kind == "rate_limit"
+
+
+@pytest.mark.parametrize(
+    "name", ["cloudflare_challenge.html", "datadome.html", "recaptcha.html", "turnstile.html"]
+)
+def test_classify_html_flags_challenge_pages(name):
+    html = _body(name)
+    assert classify_html(html) is not None
+
+
+def test_classify_html_passes_normal_page():
+    html = _body("normal.html")
+    assert classify_html(html) is None
+
+
+def test_classify_html_passes_long_page_with_a_widget():
+    html = (FIXTURES.parent / "pages/article_about_bot_walls.html").read_text(encoding="utf-8")
+    assert classify(200, {}, html) is not None  # the plain detector would still escalate
+    assert classify_html(html) is None
