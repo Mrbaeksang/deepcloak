@@ -7,11 +7,12 @@ Bot Wall is what triggers an Escalation in ``fetch_router``.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
-__all__ = ["BotWall", "classify", "from_response"]
+__all__ = ["BotWall", "classify", "classify_html", "from_response"]
 
 
 @dataclass(frozen=True)
@@ -19,6 +20,11 @@ class BotWall:
     kind: str  # cloudflare | datadome | turnstile | recaptcha | rate_limit | blocked
     signal: str  # human-readable reason, recorded in the Evidence Record
 
+
+# A challenge page has little readable text. A page with more than this is treated as real
+# content even if it embeds a widget or discusses Bot Walls.
+_MAX_CHALLENGE_TEXT_CHARS = 1500
+_NON_TEXT = re.compile(r"<(script|style)\b.*?</\1\s*>|<[^>]+>", re.IGNORECASE | re.DOTALL)
 
 # Vendor markers checked in the body (lower-cased), strongest signal first.
 _TURNSTILE = ("challenges.cloudflare.com/turnstile", "cf-turnstile")
@@ -66,3 +72,12 @@ def from_response(resp: Any) -> BotWall | None:
         headers=getattr(resp, "headers", {}) or {},
         body=getattr(resp, "text", "") or "",
     )
+
+
+def classify_html(html: str) -> BotWall | None:
+    """Re-check a page returned by a Stealth Fetch, where only the HTML is available."""
+    wall = classify(200, {}, html)
+    if wall is None:
+        return None
+    text = " ".join(_NON_TEXT.sub(" ", html).split())
+    return wall if len(text) <= _MAX_CHALLENGE_TEXT_CHARS else None

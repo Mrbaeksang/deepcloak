@@ -17,7 +17,7 @@ class EvidenceRecord:
     url: str
     bot_wall: str | None  # detected Bot Wall kind, or None
     escalated: bool  # did we switch plain -> Stealth Fetch?
-    bypassed: bool  # did the Stealth Fetch succeed after Escalation?
+    bypassed: bool  # did the Stealth Fetch return content that passed the Bot Wall re-check?
     plain_status: int | None
     elapsed_ms: int
     signal: str | None = None  # human-readable reason
