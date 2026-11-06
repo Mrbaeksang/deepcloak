@@ -7,6 +7,12 @@ without it, the retriever feeds full Bypassed pages into the synthesis prompt an
 a 16k-context local model overflows before it can write the report.
 """
 
+from types import SimpleNamespace
+
+import pytest
+
+from deepcloak import retriever
+from deepcloak.evidence import EvidenceLog
 from deepcloak.retriever import _cap_content, gather_hits
 
 
@@ -53,3 +59,35 @@ def test_gather_hits_preserves_input_order_despite_uneven_speeds():
 
 def test_gather_hits_single_hit_stays_inline():
     assert gather_hits([{"u": "x"}], lambda h: h["u"]) == ["x"]
+
+
+def _retrieve(monkeypatch, **kwargs):
+    pytest.importorskip("langchain_core")
+    calls = []
+
+    def fake_get(url, target_check=None, **_kw):
+        calls.append(url)
+        return SimpleNamespace(status_code=200, headers={}, text="<p>page</p>")
+
+    monkeypatch.setattr(retriever, "plain_get", fake_get)
+    monkeypatch.setattr(
+        retriever, "searxng_search", lambda *_a, **_k: [{"url": "http://127.0.0.1:9/", "title": ""}]
+    )
+    log = EvidenceLog()
+    built = retriever.build_stealth_retriever(
+        searxng_url="http://search.test", evidence_log=log, **kwargs
+    )
+    return built.invoke("q"), calls, log.records[0]
+
+
+def test_retriever_blocks_private_hits_by_default(monkeypatch):
+    docs, calls, record = _retrieve(monkeypatch)
+    assert docs == []
+    assert calls == []
+    assert "private network target" in record.signal
+
+
+def test_retriever_allows_private_hits_when_asked(monkeypatch):
+    docs, calls, _record = _retrieve(monkeypatch, allow_private_urls=True)
+    assert calls == ["http://127.0.0.1:9/"]
+    assert len(docs) == 1

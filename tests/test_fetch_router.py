@@ -170,6 +170,7 @@ def test_stealth_exception_keeps_the_run_going():
 
     r = fetch("https://x.test", plain_fetch=_walled, stealth_fetch=boom)
     assert r.evidence.bypassed is False
+    assert r.content == "denied"
     assert "browser crashed" in r.evidence.signal
 
 
@@ -212,3 +213,23 @@ def test_blocked_redirect_does_not_escalate():
     assert r.content is None
     assert r.evidence.escalated is False
     assert "redirect to private network target x" in r.evidence.signal
+
+
+def _challenge_plain(_url):
+    return SimpleNamespace(status_code=403, headers={}, text=CHALLENGE_HTML)
+
+
+def test_plain_challenge_is_dropped_when_escalation_fails():
+    def boom(_url):
+        raise RuntimeError("browser crashed")
+
+    r = fetch("https://x.test", plain_fetch=_challenge_plain, stealth_fetch=boom)
+    assert r.content is None
+    assert r.evidence.bypassed is False
+
+
+def test_plain_challenge_is_dropped_when_stealth_is_off():
+    r = fetch("https://x.test", mode="off", plain_fetch=_challenge_plain,
+              stealth_fetch=_stealth_returning("unused"))
+    assert r.content is None
+    assert r.evidence.bot_wall == "cloudflare"

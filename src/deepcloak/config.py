@@ -153,7 +153,7 @@ def _layered(cli: Mapping, env: Mapping, file: Mapping | None) -> dict:
             continue
         f = file.get(key) if file else None
         if f is not None:
-            src[key] = f
+            src[key] = _coerce(key, f) if isinstance(f, str) else f
     return src
 
 
