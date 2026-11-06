@@ -2,6 +2,7 @@
 
 import threading
 import time
+from types import SimpleNamespace
 
 import pytest
 
@@ -106,3 +107,67 @@ def test_failing_fetch_does_not_block_the_rest():
 
     gather_hits([{"url": u} for u in urls], do_fetch)
     assert sorted(done) == sorted(["failed", *urls[1:]])
+
+
+def test_malformed_url_does_not_raise():
+    with HostLimiter().slot("http://[bad"):
+        pass
+
+
+def test_trailing_dot_shares_the_host_slot():
+    limiter = HostLimiter(max_per_host=1)
+    entered = threading.Event()
+
+    def second():
+        with limiter.slot("https://a.test./"):
+            entered.set()
+
+    with limiter.slot("https://a.test/"):
+        thread = threading.Thread(target=second, daemon=True)
+        thread.start()
+        assert not entered.wait(timeout=0.2)
+    assert entered.wait(timeout=2)
+
+
+def test_shim_limits_concurrent_fetches_per_host():
+    from deepcloak.evidence import EvidenceLog
+    from deepcloak.ldr_shim import install
+
+    class Downloader:
+        pass
+
+    tracker = _Tracker()
+
+    def plain(_url):
+        tracker.enter("93.184.216.34")
+        time.sleep(0.03)
+        tracker.leave("93.184.216.34")
+        return SimpleNamespace(status_code=200, headers={}, text="<p>ok</p>")
+
+    cls = install(evidence_log=EvidenceLog(), target_cls=Downloader, plain_fetch=plain,
+                  stealth_fetch=lambda _u: "<p>ok</p>")
+    urls = [f"https://93.184.216.34/{i}" for i in range(8)]
+    gather_hits(urls, lambda u: cls._fetch_html(Downloader(), u))
+    assert tracker.peak["93.184.216.34"] == 2
+
+
+def test_retriever_limits_concurrent_fetches_per_host(monkeypatch):
+    pytest.importorskip("langchain_core")
+    from deepcloak import retriever
+
+    tracker = _Tracker()
+
+    def plain(_url, target_check=None):
+        tracker.enter("93.184.216.34")
+        time.sleep(0.03)
+        tracker.leave("93.184.216.34")
+        return SimpleNamespace(status_code=200, headers={}, text="<p>ok</p>")
+
+    monkeypatch.setattr(retriever, "plain_get", plain)
+    monkeypatch.setattr(
+        retriever,
+        "searxng_search",
+        lambda *_a, **_k: [{"url": f"https://93.184.216.34/{i}", "title": ""} for i in range(8)],
+    )
+    retriever.build_stealth_retriever(searxng_url="http://search.test").invoke("q")
+    assert tracker.peak["93.184.216.34"] == 2
